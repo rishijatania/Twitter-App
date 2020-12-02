@@ -1,5 +1,8 @@
 package com.twitter.twitterbackend.controllers;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +15,7 @@ import com.twitter.twitterbackend.models.Role;
 import com.twitter.twitterbackend.models.User;
 import com.twitter.twitterbackend.payload.request.LoginRequest;
 import com.twitter.twitterbackend.payload.request.SignupRequest;
+import com.twitter.twitterbackend.payload.response.ErrorMessageResponse;
 import com.twitter.twitterbackend.payload.response.JwtResponse;
 import com.twitter.twitterbackend.payload.response.MessageResponse;
 import com.twitter.twitterbackend.repository.RoleRepository;
@@ -74,22 +78,25 @@ public class AuthController {
 
 	@PostMapping("/signup")
 	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+		Date date = new Date();
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+		String dateStr = dateFormat.format(date);
 		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-			return ResponseEntity
-					.badRequest()
-					.body(new MessageResponse("Error: Username is already taken!"));
+			return ResponseEntity.badRequest()
+					.body(new ErrorMessageResponse(dateStr, "Error: Username is already taken!", 400, "", "/signup"));
 		}
 
 		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-			return ResponseEntity
-					.badRequest()
-					.body(new MessageResponse("Error: Email is already in use!"));
+			return ResponseEntity.badRequest()
+					.body(new ErrorMessageResponse(dateStr, "Error: Email is already in use!", 400, "", "/signup"));
 		}
 
 		// Create new user's account
 		User user = new User(signUpRequest.getUsername(), 
 							 signUpRequest.getEmail(),
-							 encoder.encode(signUpRequest.getPassword()));
+							 encoder.encode(signUpRequest.getPassword()),
+							 signUpRequest.getFirstname(), 
+							 signUpRequest.getLastname());
 
 		Set<String> strRoles = signUpRequest.getRoles();
 		Set<Role> roles = new HashSet<>();
