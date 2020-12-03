@@ -42,7 +42,8 @@ public class User {
 	@Size(max = 120)
 	private String password;
 
-	private String profilePic;
+	private String profilePicUrl;
+	private String profilePicName;
 
 	@Size(max = 300)
 	private String bio;
@@ -144,15 +145,15 @@ public class User {
 	/**
 	 * @return String return the profilePic
 	 */
-	public String getProfilePic() {
-		return profilePic;
+	public String getProfilePicUrl() {
+		return profilePicUrl;
 	}
 
 	/**
 	 * @param profilePic the profilePic to set
 	 */
-	public void setProfilePic(String profilePic) {
-		this.profilePic = profilePic;
+	public void setProfilePicUrl(String profilePicUrl) {
+		this.profilePicUrl = profilePicUrl;
 	}
 
 	/**
@@ -224,5 +225,20 @@ public class User {
 	public void setLastname(String lastname) {
 		this.lastname = lastname;
 	}
+
+
+    /**
+     * @return String return the profilePicName
+     */
+    public String getProfilePicName() {
+        return profilePicName;
+    }
+
+    /**
+     * @param profilePicName the profilePicName to set
+     */
+    public void setProfilePicName(String profilePicName) {
+        this.profilePicName = profilePicName;
+    }
 
 }

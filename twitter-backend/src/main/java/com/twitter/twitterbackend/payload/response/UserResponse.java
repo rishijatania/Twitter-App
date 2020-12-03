@@ -10,7 +10,8 @@ public class UserResponse {
 	private String email;
 	private String firstname;
 	private String lastname;
-	private String profilePic;
+	private String profilePicUrl;
+	private String profilePicName;
 	private String bio;
 	private Set<RoleResponse> roles;
 	private Set<UserResponse> followers = new HashSet<>();
@@ -103,15 +104,15 @@ public class UserResponse {
 	/**
 	 * @return String return the profilePic
 	 */
-	public String getProfilePic() {
-		return profilePic;
+	public String getProfilePicUrl() {
+		return profilePicUrl;
 	}
 
 	/**
 	 * @param profilePic the profilePic to set
 	 */
-	public void setProfilePic(String profilePic) {
-		this.profilePic = profilePic;
+	public void setProfilePicUrl(String profilePicUrl) {
+		this.profilePicUrl = profilePicUrl;
 	}
 
 	/**
@@ -155,5 +156,20 @@ public class UserResponse {
 	public void setFollowing(Set<UserResponse> following) {
 		this.following = following;
 	}
+
+
+    /**
+     * @return String return the profilePicName
+     */
+    public String getProfilePicName() {
+        return profilePicName;
+    }
+
+    /**
+     * @param profilePicName the profilePicName to set
+     */
+    public void setProfilePicName(String profilePicName) {
+        this.profilePicName = profilePicName;
+    }
 
 }

@@ -3,6 +3,7 @@ package com.twitter.twitterbackend.controllers;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -13,6 +14,7 @@ import com.twitter.twitterbackend.payload.response.ErrorMessageResponse;
 import com.twitter.twitterbackend.payload.response.UserResponse;
 import com.twitter.twitterbackend.repository.UserRepository;
 import com.twitter.twitterbackend.security.services.UserDetailsServiceImpl;
+import com.twitter.twitterbackend.service.ImageService;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,9 @@ public class ProfileController {
 
 	@Autowired
 	UserDetailsServiceImpl userServiceImpl;
+
+	@Autowired
+	ImageService imageService;
 
 	@Autowired
 	UserRepository userRepository;
@@ -72,8 +77,9 @@ public class ProfileController {
 			user.setBio(userFormDTO.getBio());
 			//upload to s3 here
 			if(userFormDTO.isProficPicChanged()){
-				
-				// user.setProfilePic(); s3 url
+				String[] pic = imageService.updateImage(file,user.getProfilePicName());
+				user.setProfilePicUrl(pic[1].isEmpty()? null:pic[1]);
+				user.setProfilePicName(pic[0].isEmpty()? null:pic[0]);
 			}
 			userRepository.save(user);
 		} catch (Exception e) {
