@@ -89,7 +89,6 @@ public class ImageService {
 	}
 
 	public String[] updateImage(MultipartFile file,String fileName) throws Exception {
-		Map<String,String> pic = new HashMap<>();
 		String name="";
 		String url="";
 		if(file == null && fileName==null)
