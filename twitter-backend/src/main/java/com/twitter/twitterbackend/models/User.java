@@ -57,16 +57,19 @@ public class User {
 	@DBRef
 	private Set<Role> roles = new HashSet<>();
 
-	@DBRef
+	@DBRef(lazy = true)
 	private Set<User> followers = new HashSet<>();
 
-	@DBRef
+	@DBRef(lazy = true)
 	private Set<User> following = new HashSet<>();
+
+	private Integer followersCount;
+	private Integer followingCount;
 
 	public User() {
 	}
 
-	public User(String username, String email, String password,String firstname, String lastname) {
+	public User(String username, String email, String password, String firstname, String lastname) {
 		this.username = username;
 		this.email = email;
 		this.password = password;
@@ -226,19 +229,32 @@ public class User {
 		this.lastname = lastname;
 	}
 
+	/**
+	 * @return String return the profilePicName
+	 */
+	public String getProfilePicName() {
+		return profilePicName;
+	}
 
-    /**
-     * @return String return the profilePicName
-     */
-    public String getProfilePicName() {
-        return profilePicName;
-    }
+	/**
+	 * @param profilePicName the profilePicName to set
+	 */
+	public void setProfilePicName(String profilePicName) {
+		this.profilePicName = profilePicName;
+	}
 
-    /**
-     * @param profilePicName the profilePicName to set
-     */
-    public void setProfilePicName(String profilePicName) {
-        this.profilePicName = profilePicName;
-    }
+	/**
+	 * @return Integer return the followersCount
+	 */
+	public Integer getFollowersCount() {
+		return followers.size();
+	}
+
+	/**
+	 * @return Integer return the followingCount
+	 */
+	public Integer getFollowingCount() {
+		return following.size();
+	}
 
 }

@@ -1,10 +1,6 @@
 package com.twitter.twitterbackend.payload.response;
 
-import java.util.HashSet;
-import java.util.Set;
-
-public class UserResponse {
-
+public class UserDetailMinResponse {
 	private String id;
 	private String username;
 	private String email;
@@ -13,14 +9,11 @@ public class UserResponse {
 	private String profilePicUrl;
 	private String profilePicName;
 	private String bio;
-	private Set<RoleResponse> roles;
-	private Set<UserDetailMinResponse> followers = new HashSet<>();
-	private Set<UserDetailMinResponse> following = new HashSet<>();
 	private Integer followersCount;
 	private Integer followingCount;
 
 	/**
-	 * @return Long return the id
+	 * @return String return the id
 	 */
 	public String getId() {
 		return id;
@@ -62,20 +55,6 @@ public class UserResponse {
 	}
 
 	/**
-	 * @return Set<RoleResponse> return the roles
-	 */
-	public Set<RoleResponse> getRoles() {
-		return roles;
-	}
-
-	/**
-	 * @param roles the roles to set
-	 */
-	public void setRoles(Set<RoleResponse> roles) {
-		this.roles = roles;
-	}
-
-	/**
 	 * @return String return the firstname
 	 */
 	public String getFirstname() {
@@ -101,20 +80,6 @@ public class UserResponse {
 	 */
 	public void setLastname(String lastname) {
 		this.lastname = lastname;
-	}
-
-	/**
-	 * @return String return the bio
-	 */
-	public String getBio() {
-		return bio;
-	}
-
-	/**
-	 * @param bio the bio to set
-	 */
-	public void setBio(String bio) {
-		this.bio = bio;
 	}
 
 	/**
@@ -146,31 +111,17 @@ public class UserResponse {
 	}
 
 	/**
-	 * @return Set<UserDetailMinResponse> return the followers
+	 * @return String return the bio
 	 */
-	public Set<UserDetailMinResponse> getFollowers() {
-		return followers;
+	public String getBio() {
+		return bio;
 	}
 
 	/**
-	 * @param followers the followers to set
+	 * @param bio the bio to set
 	 */
-	public void setFollowers(Set<UserDetailMinResponse> followers) {
-		this.followers = followers;
-	}
-
-	/**
-	 * @return Set<UserDetailMinResponse> return the following
-	 */
-	public Set<UserDetailMinResponse> getFollowing() {
-		return following;
-	}
-
-	/**
-	 * @param following the following to set
-	 */
-	public void setFollowing(Set<UserDetailMinResponse> following) {
-		this.following = following;
+	public void setBio(String bio) {
+		this.bio = bio;
 	}
 
 	/**

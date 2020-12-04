@@ -25,7 +25,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	}
 
 	public User getUserInfo(String username) {
-		return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+		return userRepository.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
 	}
 
 	public User getCurrentUserFromSession() {
