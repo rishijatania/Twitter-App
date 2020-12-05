@@ -5,8 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -29,7 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class ImageService {
 
-    @Value("${amazonProperties.bucketName}")
+	@Value("${amazonProperties.bucketName}")
 	private String bucketName;
 
 	private AmazonS3 s3client;
@@ -39,10 +37,7 @@ public class ImageService {
 
 	@PostConstruct
 	private void initializeAmazon() {
-		this.s3client = AmazonS3ClientBuilder
-			.standard()
-			.withRegion(Regions.US_EAST_1)
-			.build();
+		this.s3client = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
 	}
 
 	private File convertMultiPartToFile(MultipartFile file) throws IOException {
@@ -60,23 +55,22 @@ public class ImageService {
 	}
 
 	public String uploadFile(MultipartFile multipartFile) throws Exception {
-		String fileName="";
+		String fileName = "";
 		try {
 			File file = convertMultiPartToFile(multipartFile);
 			fileName = generateFileName(multipartFile);
 			uploadFileTos3bucket(fileName, file);
 			file.delete();
 		} catch (Exception e) {
-		   e.printStackTrace();
-		   throw e;
+			e.printStackTrace();
+			throw e;
 		}
 		return fileName;
 	}
 
-	private void uploadFileTos3bucket(String fileName, File file) throws Exception{
+	private void uploadFileTos3bucket(String fileName, File file) throws Exception {
 		try {
 			s3client.putObject(new PutObjectRequest(bucketName, fileName, file));
-				// .withCannedAcl(CannedAccessControlList.PublicRead));
 		} catch (AmazonServiceException e) {
 			System.err.println(e.getErrorMessage());
 			throw e;
@@ -85,46 +79,42 @@ public class ImageService {
 
 	private String generateFileName(MultipartFile multiPart) {
 		User user = userServiceImpl.getCurrentUserFromSession();
-		return new Date().getTime() + "-" + user.getUsername() + "-" + "profilePic"; 
+		return new Date().getTime() + "-" + user.getUsername() + "-" + "profilePic";
 	}
 
-	public String[] updateImage(MultipartFile file,String fileName) throws Exception {
-		Map<String,String> pic = new HashMap<>();
-		String name="";
-		String url="";
-		if(file == null && fileName==null)
+	public String[] updateImage(MultipartFile file, String fileName) throws Exception {
+		String name = "";
+		String url = "";
+		if ((file == null || file.isEmpty()) && (fileName == null || fileName.isEmpty()))
 			return null;
-		if(fileName!=null){
+		if (fileName != null && !fileName.isEmpty()) {
 			deleteFileFromS3Bucket(fileName);
 		}
-		if(file != null){
+		if (file != null && !file.isEmpty()) {
 			name = uploadFile(file);
 			url = generatePresignedURL(name);
 		}
-		return new String[]{name,url};
+		return new String[] { name, url };
 	}
 
 	private void deleteFileFromS3Bucket(String fileName) throws IOException {
-		try{
+		try {
 			s3client.deleteObject(new DeleteObjectRequest(bucketName, fileName));
 		} catch (AmazonServiceException e) {
 			System.err.println(e.getErrorMessage());
 			throw e;
 		}
-	}	
+	}
 
-	public String generatePresignedURL(String objectKey)
-    {
-        java.util.Date expiration = new java.util.Date();
-        long expTimeMillis = expiration.getTime();
-        expTimeMillis += 1000 * 60 * 2;
-        expiration.setTime(expTimeMillis);
+	public String generatePresignedURL(String objectKey) {
+		java.util.Date expiration = new java.util.Date();
+		long expTimeMillis = expiration.getTime();
+		expTimeMillis += 1000 * 60 * 2;
+		expiration.setTime(expTimeMillis);
 
-        GeneratePresignedUrlRequest generatePresignedUrlRequest =
-                new GeneratePresignedUrlRequest(bucketName, objectKey)
-                        .withMethod(HttpMethod.GET)
-                        .withExpiration(expiration);
-        URL url = s3client.generatePresignedUrl(generatePresignedUrlRequest);
-        return url.toString();
-    }
+		GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, objectKey)
+				.withMethod(HttpMethod.GET).withExpiration(expiration);
+		URL url = s3client.generatePresignedUrl(generatePresignedUrlRequest);
+		return url.toString();
+	}
 }

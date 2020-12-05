@@ -27,6 +27,7 @@ public class UserProfileRequest {
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
 	/**
 	 * @return String return the firstname
 	 */
@@ -69,18 +70,18 @@ public class UserProfileRequest {
 		this.bio = bio;
 	}
 
-    /**
-     * @return boolean return the proficPicChanged
-     */
-    public boolean isProficPicChanged() {
-        return proficPicChanged;
-    }
+	/**
+	 * @return boolean return the proficPicChanged
+	 */
+	public boolean isProficPicChanged() {
+		return proficPicChanged;
+	}
 
-    /**
-     * @param proficPicChanged the proficPicChanged to set
-     */
-    public void setProficPicChanged(boolean proficPicChanged) {
-        this.proficPicChanged = proficPicChanged;
-    }
+	/**
+	 * @param proficPicChanged the proficPicChanged to set
+	 */
+	public void setProficPicChanged(boolean proficPicChanged) {
+		this.proficPicChanged = proficPicChanged;
+	}
 
 }

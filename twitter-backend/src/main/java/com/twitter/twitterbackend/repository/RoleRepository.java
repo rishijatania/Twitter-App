@@ -8,5 +8,5 @@ import com.twitter.twitterbackend.models.ERole;
 import com.twitter.twitterbackend.models.Role;
 
 public interface RoleRepository extends MongoRepository<Role, String> {
-  Optional<Role> findByName(ERole name);
+	Optional<Role> findByName(ERole name);
 }
