@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
+
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
@@ -159,7 +161,7 @@ export default function SignUp() {
           </Button>
           <Grid container justify="flex-end">
             <Grid item>
-              <Link href="#" variant="body2">
+              <Link component={RouterLink} to="/" variant="body2">
                 Already have an account? Sign in
               </Link>
             </Grid>

@@ -3,7 +3,7 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { ThemeProvider } from "@material-ui/core";
 
 import SignUp from "./components/SignUp";
-import Login from "./components/Login";
+import SignIn from "./components/SignIn";
 import theme from "./theme";
 
 function App() {
@@ -11,7 +11,7 @@ function App() {
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <Switch>
-          <Route exact path={["/", "/login"]} component={Login} />
+          <Route exact path={["/", "/signin"]} component={SignIn} />
           <Route exact path="/signup" component={SignUp} />
         </Switch>
       </ThemeProvider>
