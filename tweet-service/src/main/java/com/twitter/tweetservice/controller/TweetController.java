@@ -3,6 +3,8 @@ package com.twitter.tweetservice.controller;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -13,10 +15,12 @@ import com.twitter.tweetservice.models.Tweet;
 import com.twitter.tweetservice.models.User;
 import com.twitter.tweetservice.payload.request.TweetRequest;
 import com.twitter.tweetservice.payload.response.ErrorMessageResponse;
+import com.twitter.tweetservice.payload.response.SearchTweetResponse;
 import com.twitter.tweetservice.payload.response.TweetResponse;
 import com.twitter.tweetservice.repository.TagRepository;
 import com.twitter.tweetservice.repository.TweetRepository;
 import com.twitter.tweetservice.service.ImageService;
+import com.twitter.tweetservice.service.TweetActionServiceImpl;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,16 +47,19 @@ public class TweetController {
 	private ModelMapper modelMapper;
 
 	@Autowired
-	ImageService imageService;
+	private ImageService imageService;
 
 	@Autowired
-	TweetRepository tweetRepository;
+	private TweetRepository tweetRepository;
 
 	@Autowired
-	TagRepository tagRepository;
+	private TagRepository tagRepository;
 
 	@Autowired
-	MongoTemplate mongoTemplate;
+	private MongoTemplate mongoTemplate;
+
+	@Autowired
+	private TweetActionServiceImpl tweetActionServiceImpl;
 
 	@RequestMapping(value = "/testHealth", method = RequestMethod.GET)
 	public String userAccess(@RequestAttribute User user) {
@@ -71,7 +80,7 @@ public class TweetController {
 		try {
 			//Create Tweet
 			TweetRequest tweetFormDTO = mapper.readValue(tweetForm, TweetRequest.class);
-			tweet.setText(tweetFormDTO.getText());
+			tweet.setContent(tweetFormDTO.getContent());
 			if(!tweetFormDTO.getTags().isEmpty())
 				tweet.setTags(tweetFormDTO.getTags());
 			tweet.setUser(user);
@@ -98,10 +107,47 @@ public class TweetController {
 			}
 		} catch (Exception e) {
 			return new ResponseEntity<>(
-					new ErrorMessageResponse(DateToString(), "Twee Create sfailed!", 400, "", "/tweet"),
+					new ErrorMessageResponse(DateToString(), "Tweet Create sfailed!", 400, "", "/tweet"),
 					HttpStatus.BAD_REQUEST);
 		}
 		return ResponseEntity.ok(modelMapper.map(tweet, TweetResponse.class));
+	}
+
+	@GetMapping("/search")
+	public ResponseEntity<?> searchTweet(@RequestParam String text) {
+		if(text == null || text.isEmpty()){
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "Please enter search text!", 400, "", "/search"),
+					HttpStatus.BAD_REQUEST);
+		}
+		SearchTweetResponse result = new SearchTweetResponse();
+		try{
+			List<Tweet> tweets= tweetActionServiceImpl.findTweetByText(text);
+			tweets.forEach(tweet-> {
+				result.getTweets().add(modelMapper.map(tweet, TweetResponse.class));
+			});
+		} catch (Exception e) {
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "Tweet Search failed!", 400, "", "/search"),
+					HttpStatus.BAD_REQUEST);
+		}
+		return ResponseEntity.ok(result);
+	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getTweet(@PathVariable String id) {
+		if(id == null|| id.isEmpty()){
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "Please enter search id!", 400, "", "/tweet/{id}"),
+					HttpStatus.BAD_REQUEST);
+		}
+		Optional<Tweet> tweet = tweetActionServiceImpl.findTweetById(id);
+		if(!tweet.isPresent()){
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "Tweet Not found!", 404, "", "/tweet/{id}"),
+					HttpStatus.NOT_FOUND);
+		}
+		return ResponseEntity.ok(modelMapper.map(tweet.get(), TweetResponse.class));
 	}
 
 	public String DateToString() {
