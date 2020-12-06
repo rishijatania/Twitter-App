@@ -15,6 +15,7 @@ import com.twitter.tweetservice.models.Tweet;
 import com.twitter.tweetservice.models.User;
 import com.twitter.tweetservice.payload.request.TweetRequest;
 import com.twitter.tweetservice.payload.response.ErrorMessageResponse;
+import com.twitter.tweetservice.payload.response.MessageResponse;
 import com.twitter.tweetservice.payload.response.SearchTweetResponse;
 import com.twitter.tweetservice.payload.response.TweetResponse;
 import com.twitter.tweetservice.repository.TagRepository;
@@ -28,6 +29,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,8 +65,8 @@ public class TweetController {
 	private TweetActionServiceImpl tweetActionServiceImpl;
 
 	@RequestMapping(value = "/testHealth", method = RequestMethod.GET)
-	public String userAccess(@RequestAttribute User user) {
-		return "Tweet Service Up and running.";
+	public ResponseEntity<?> userAccess(@RequestAttribute User user) {
+		return ResponseEntity.ok(new MessageResponse("Tweet Service Up and running."));
 	}
 
 	@PostMapping(value = "")
@@ -137,6 +139,27 @@ public class TweetController {
 		return ResponseEntity.ok(modelMapper.map(t.get(), TweetResponse.class));
 	}
 
+	@DeleteMapping(value = "/{id}")
+	public ResponseEntity<?> deleteTweet(@RequestAttribute User user, @PathVariable String id) {
+		try {
+			Optional<Tweet> t = tweetRepository.findById(id);
+			if (!t.isPresent()) {
+				return new ResponseEntity<>(
+						new ErrorMessageResponse(DateToString(), "Tweet not found", 404, "", "/tweet"),
+						HttpStatus.NOT_FOUND);
+			}
+			// Remove comments
+
+			// Delete Tweet
+			tweetRepository.delete(t.get());
+		} catch (Exception e) {
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "Tweet Delete failed!", 400, "", "/tweet"),
+					HttpStatus.BAD_REQUEST);
+		}
+		return ResponseEntity.ok(new MessageResponse("Tweet Deleted"));
+	}
+
 	@GetMapping("/search")
 	public ResponseEntity<?> searchTweet(@RequestParam String text) {
 		if (text == null || text.isEmpty()) {
@@ -153,6 +176,33 @@ public class TweetController {
 		} catch (Exception e) {
 			return new ResponseEntity<>(
 					new ErrorMessageResponse(DateToString(), "Tweet Search failed!", 400, "", "/search"),
+					HttpStatus.BAD_REQUEST);
+		}
+		return ResponseEntity.ok(result);
+	}
+
+	@GetMapping("/searchTag")
+	public ResponseEntity<?> searchTag(@RequestParam String tag) {
+		if (tag == null || tag.isEmpty()) {
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "Please enter search tag!", 400, "", "/searchTag"),
+					HttpStatus.BAD_REQUEST);
+		}
+		SearchTweetResponse result = new SearchTweetResponse();
+		try {
+			Optional<Tag> tagResponse = tagRepository.findByTag(tag);
+			if (tagResponse.isPresent()) {
+				tagResponse.get().getTweets().forEach(tweet -> {
+					result.getTweets().add(modelMapper.map(tweet, TweetResponse.class));
+				});
+			} else {
+				return new ResponseEntity<>(
+						new ErrorMessageResponse(DateToString(), "Tweet Tag Not Found!", 404, "", "/searchTag"),
+						HttpStatus.NOT_FOUND);
+			}
+		} catch (Exception e) {
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "Tweet Tag Search failed!", 400, "", "/searchTag"),
 					HttpStatus.BAD_REQUEST);
 		}
 		return ResponseEntity.ok(result);
