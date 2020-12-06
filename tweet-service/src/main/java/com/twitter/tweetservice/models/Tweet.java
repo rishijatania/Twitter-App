@@ -36,7 +36,6 @@ public class Tweet {
 	@DBRef
 	private List<Comment> comments = new ArrayList<>();
 
-	@DBRef
 	private List<Like> likes = new ArrayList<>();
 
 	@DBRef

@@ -10,6 +10,7 @@ import javax.validation.Valid;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.twitter.tweetservice.models.File;
+import com.twitter.tweetservice.models.Like;
 import com.twitter.tweetservice.models.Tag;
 import com.twitter.tweetservice.models.Tweet;
 import com.twitter.tweetservice.models.User;
@@ -158,6 +159,35 @@ public class TweetController {
 					HttpStatus.BAD_REQUEST);
 		}
 		return ResponseEntity.ok(new MessageResponse("Tweet Deleted"));
+	}
+
+	@PostMapping(value = "/{id}/like")
+	public ResponseEntity<?> likeTweet(@RequestAttribute User user, @PathVariable String id) {
+		try {
+			Optional<Tweet> t = tweetRepository.findById(id);
+			if (!t.isPresent()) {
+				return new ResponseEntity<>(
+						new ErrorMessageResponse(DateToString(), "Tweet not found", 404, "", "/tweet"),
+						HttpStatus.NOT_FOUND);
+			}
+
+			// Toggle Like
+			Optional<Like> like = t.get().getLikes().stream()
+					.filter(l -> l.getUser().getUsername().equals(user.getUsername())).findFirst();
+			if (like.isPresent()) {
+				t.get().getLikes().remove(like.get());
+			} else {
+				Like li = new Like();
+				li.setUser(user);
+				t.get().getLikes().add(li);
+			}
+			tweetRepository.save(t.get());
+			return ResponseEntity.ok(modelMapper.map(t.get(), TweetResponse.class));
+		} catch (Exception e) {
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "Tweet Like failed!", 400, "", "/tweet"),
+					HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@GetMapping("/search")
