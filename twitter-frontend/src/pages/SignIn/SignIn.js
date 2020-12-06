@@ -11,6 +11,9 @@ import TwitterIcon from "@material-ui/icons/Twitter";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
+import { snackbarService } from "uno-material-ui";
+
+import { login } from "../../services/AuthService";
 
 function Copyright() {
   return (
@@ -47,11 +50,30 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignIn() {
+const SignIn = (props) => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
 
   const classes = useStyles();
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    login(userName, password).then(
+      () => {
+        props.history.push("/");
+        window.location.reload();
+      },
+      (error) => {
+        const errorMessage =
+          (error.response &&
+            error.response.data &&
+            error.response.data.message) ||
+          error.message ||
+          error.toString();
+        snackbarService.showSnackbar(errorMessage, "error");
+      }
+    );
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -61,7 +83,7 @@ export default function SignIn() {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} onSubmit={handleFormSubmit}>
           <TextField
             variant="outlined"
             margin="normal"
@@ -114,4 +136,6 @@ export default function SignIn() {
       </Box>
     </Container>
   );
-}
+};
+
+export default SignIn;

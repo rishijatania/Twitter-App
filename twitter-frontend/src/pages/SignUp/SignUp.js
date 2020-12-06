@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Redirect, Link as RouterLink } from "react-router-dom";
 
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -11,8 +11,9 @@ import TwitterIcon from "@material-ui/icons/Twitter";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
+import { snackbarService } from "uno-material-ui";
 
-import AuthService from "../services/AuthService";
+import { register } from "../../services/AuthService";
 
 function Copyright() {
   return (
@@ -50,32 +51,42 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignUp() {
+const SignUp = () => {
   const [userName, setUserName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [emailAddress, setemailAddress] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [redirect, setRedirect] = useState(false);
 
   const classes = useStyles();
 
   function handleRegister(e) {
     e.preventDefault();
+    setLoading(true);
 
-    AuthService.register(
-      userName,
-      firstName,
-      lastName,
-      emailAddress,
-      password
-    ).then(
+    register(userName, firstName, lastName, emailAddress, password).then(
       (response) => {
-        console.log(response);
+        setLoading(false);
+        snackbarService.showSnackbar(response.data.message);
+        setRedirect(true);
       },
       (error) => {
-        console.log(error);
+        setLoading(false);
+        const errorMessage =
+          (error.response &&
+            error.response.data &&
+            error.response.data.message) ||
+          error.message ||
+          error.toString();
+        snackbarService.showSnackbar(errorMessage, "error");
       }
     );
+  }
+
+  if (redirect) {
+    return <Redirect to="/" />;
   }
 
   return (
@@ -156,6 +167,7 @@ export default function SignUp() {
             variant="contained"
             color="primary"
             className={classes.submit}
+            disabled={loading}
           >
             Sign Up
           </Button>
@@ -173,4 +185,6 @@ export default function SignUp() {
       </Box>
     </Container>
   );
-}
+};
+
+export default SignUp;
