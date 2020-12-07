@@ -9,16 +9,19 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.twitter.tweetservice.models.Comment;
 import com.twitter.tweetservice.models.File;
 import com.twitter.tweetservice.models.Like;
 import com.twitter.tweetservice.models.Tag;
 import com.twitter.tweetservice.models.Tweet;
 import com.twitter.tweetservice.models.User;
+import com.twitter.tweetservice.payload.request.CommentRequest;
 import com.twitter.tweetservice.payload.request.TweetRequest;
 import com.twitter.tweetservice.payload.response.ErrorMessageResponse;
 import com.twitter.tweetservice.payload.response.MessageResponse;
 import com.twitter.tweetservice.payload.response.SearchTweetResponse;
 import com.twitter.tweetservice.payload.response.TweetResponse;
+import com.twitter.tweetservice.repository.CommentRepository;
 import com.twitter.tweetservice.repository.TagRepository;
 import com.twitter.tweetservice.repository.TweetRepository;
 import com.twitter.tweetservice.service.ImageService;
@@ -36,6 +39,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,6 +59,9 @@ public class TweetController {
 
 	@Autowired
 	private TweetRepository tweetRepository;
+
+	@Autowired
+	private CommentRepository commentRepository;
 
 	@Autowired
 	private TagRepository tagRepository;
@@ -126,6 +133,12 @@ public class TweetController {
 			return new ResponseEntity<>(new ErrorMessageResponse(DateToString(), "Tweet not found", 404, "", "/tweet"),
 					HttpStatus.NOT_FOUND);
 		}
+
+		if (!t.get().getUser().getUsername().equals(user.getUsername())) {
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "User Not Authorised to Update Tweet", 404, "", "/tweet"),
+					HttpStatus.UNAUTHORIZED);
+		}
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			// Create Tweet
@@ -149,8 +162,14 @@ public class TweetController {
 						new ErrorMessageResponse(DateToString(), "Tweet not found", 404, "", "/tweet"),
 						HttpStatus.NOT_FOUND);
 			}
+			if (!t.get().getUser().getUsername().equals(user.getUsername())) {
+				return new ResponseEntity<>(new ErrorMessageResponse(DateToString(),
+						"User Not Authorised to Delete Tweet", 404, "", "/tweet"), HttpStatus.UNAUTHORIZED);
+			}
 			// Remove comments
-
+			t.get().getComments().forEach(comment -> {
+				commentRepository.delete(comment);
+			});
 			// Delete Tweet
 			tweetRepository.delete(t.get());
 		} catch (Exception e) {
@@ -274,6 +293,64 @@ public class TweetController {
 					HttpStatus.BAD_REQUEST);
 		}
 		return ResponseEntity.ok(result);
+	}
+
+	@PostMapping(value = "/{id}/comment")
+	public ResponseEntity<?> createComment(@RequestAttribute User user, @PathVariable String id,
+			@RequestBody @Valid CommentRequest commentDTO) {
+		Optional<Tweet> tweet;
+		try {
+			tweet = tweetActionServiceImpl.findTweetById(id);
+			if (!tweet.isPresent()) {
+				return new ResponseEntity<>(
+						new ErrorMessageResponse(DateToString(), "Tweet Not found!", 404, "", "/tweet/{id}/comment"),
+						HttpStatus.NOT_FOUND);
+			}
+			// Create Comment
+			Comment comment = new Comment();
+			comment.setText(commentDTO.getText());
+			comment.setUser(user);
+			comment.setTweet(tweet.get());
+			commentRepository.save(comment);
+			tweet.get().getComments().add(comment);
+			tweetRepository.save(tweet.get());
+		} catch (Exception e) {
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "Comment Create failed!", 400, "", "/comment"),
+					HttpStatus.BAD_REQUEST);
+		}
+		return ResponseEntity.ok(modelMapper.map(tweet.get(), TweetResponse.class));
+	}
+
+	@DeleteMapping(value = "/{id}/comment/{cid}")
+	public ResponseEntity<?> deleteComment(@RequestAttribute User user, @PathVariable String id,
+			@PathVariable String cid) {
+
+		try {
+			Optional<Tweet> t = tweetRepository.findById(id);
+			if (!t.isPresent()) {
+				return new ResponseEntity<>(
+						new ErrorMessageResponse(DateToString(), "Tweet Not found!", 404, "", "/Comment"),
+						HttpStatus.NOT_FOUND);
+			}
+			if (!t.get().getComments().stream().anyMatch(com -> com.getId().equals(cid))) {
+				return new ResponseEntity<>(
+						new ErrorMessageResponse(DateToString(), "Comment Not found!", 404, "", "/Comment"),
+						HttpStatus.NOT_FOUND);
+			}
+			Optional<Comment> comment = commentRepository.findById(cid);
+			if (!comment.get().getUser().getUsername().equals(user.getUsername())) {
+				return new ResponseEntity<>(new ErrorMessageResponse(DateToString(),
+						"User Not Authorised to Delete Comment", 404, "", "/Comment"), HttpStatus.UNAUTHORIZED);
+			}
+			// Delete Comment
+			commentRepository.delete(comment.get());
+		} catch (Exception e) {
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "Comment Delete failed!", 400, "", "/tweet"),
+					HttpStatus.BAD_REQUEST);
+		}
+		return ResponseEntity.ok(new MessageResponse("Comment Deleted"));
 	}
 
 	public String DateToString() {
