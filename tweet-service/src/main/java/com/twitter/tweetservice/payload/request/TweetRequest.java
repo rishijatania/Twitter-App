@@ -11,7 +11,7 @@ public class TweetRequest {
 	
 	@NotBlank
 	@Size(max = 300)
-	private String text;
+	private String content;
 
 	private List<String> tags = new ArrayList<>();
 
@@ -21,15 +21,15 @@ public class TweetRequest {
     /**
      * @return String return the text
      */
-    public String getText() {
-        return text;
+    public String getContent() {
+        return content;
     }
 
     /**
      * @param text the text to set
      */
-    public void setText(String text) {
-        this.text = text;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     /**

@@ -11,6 +11,7 @@ import javax.validation.constraints.Size;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -25,7 +26,8 @@ public class Tweet {
 
 	@NotBlank
 	@Size(max = 300)
-	private String text;
+	@TextIndexed
+	private String content;
 
 	private List<String> tags = new ArrayList<>();
 
@@ -34,7 +36,6 @@ public class Tweet {
 	@DBRef
 	private List<Comment> comments = new ArrayList<>();
 
-	@DBRef
 	private List<Like> likes = new ArrayList<>();
 
 	@DBRef
@@ -84,15 +85,15 @@ public class Tweet {
 	/**
 	 * @return String return the text
 	 */
-	public String getText() {
-		return text;
+	public String getContent() {
+		return content;
 	}
 
 	/**
 	 * @param text the text to set
 	 */
-	public void setText(String text) {
-		this.text = text;
+	public void setContent(String content) {
+		this.content = content;
 	}
 
 	/**

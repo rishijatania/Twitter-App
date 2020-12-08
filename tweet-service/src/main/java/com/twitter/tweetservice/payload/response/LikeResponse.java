@@ -1,20 +1,20 @@
 package com.twitter.tweetservice.payload.response;
 
 public class LikeResponse {
-	private String username;
-	
-    /**
-     * @return String return the username
-     */
-    public String getUsername() {
-        return username;
-    }
+	private UserDetailMinResponse user;
 
-    /**
-     * @param username the username to set
-     */
-    public void setUsername(String username) {
-        this.username = username;
-    }
+	/**
+	 * @return String return the username
+	 */
+	public UserDetailMinResponse getUser() {
+		return user;
+	}
+
+	/**
+	 * @param username the username to set
+	 */
+	public void setUser(UserDetailMinResponse user) {
+		this.user = user;
+	}
 
 }

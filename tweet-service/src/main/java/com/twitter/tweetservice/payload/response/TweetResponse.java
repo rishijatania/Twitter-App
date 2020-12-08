@@ -7,7 +7,7 @@ import java.util.List;
 public class TweetResponse {
 	private String id;
 	private UserDetailMinResponse user;
-	private String text;
+	private String content;
 	private List<String> tags = new ArrayList<>();
 	private FileResponse file;
 	private List<CommentResponse> comments = new ArrayList<>();
@@ -50,15 +50,15 @@ public class TweetResponse {
     /**
      * @return String return the text
      */
-    public String getText() {
-        return text;
+    public String getContent() {
+        return content;
     }
 
     /**
      * @param text the text to set
      */
-    public void setText(String text) {
-        this.text = text;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     /**
