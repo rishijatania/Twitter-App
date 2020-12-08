@@ -16,6 +16,7 @@ import com.twitter.twitterbackend.payload.request.UserProfileRequest;
 import com.twitter.twitterbackend.payload.response.ErrorMessageResponse;
 import com.twitter.twitterbackend.payload.response.FollowUserSuggestion;
 import com.twitter.twitterbackend.payload.response.MessageResponse;
+import com.twitter.twitterbackend.payload.response.SearchUserResponse;
 import com.twitter.twitterbackend.payload.response.UserDetailMinResponse;
 import com.twitter.twitterbackend.payload.response.UserResponse;
 import com.twitter.twitterbackend.repository.UserRepository;
@@ -110,6 +111,29 @@ public class ProfileController {
 		return ResponseEntity.ok(modelMapper.map(user, UserResponse.class));
 	}
 
+	@GetMapping("/search")
+	public ResponseEntity<?> searchTweet(@RequestParam String username) {
+		if (username == null || username.isEmpty()) {
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "Please enter search text!", 400, "", "/search"),
+					HttpStatus.BAD_REQUEST);
+		}
+		SearchUserResponse result = new SearchUserResponse();
+		try {
+			Optional<List<User>> users = userRepository.searchByUsername(username);
+			if (users.isPresent()) {
+				users.get().forEach(user -> {
+					result.getUsers().add(modelMapper.map(user, UserResponse.class));
+				});
+			}
+		} catch (Exception e) {
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "User Search failed!", 400, "", "/search"),
+					HttpStatus.BAD_REQUEST);
+		}
+		return ResponseEntity.ok(result);
+	}
+
 	@PostMapping("/followers")
 	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<?> addFollowers(@RequestBody FollowRequest follow) {
@@ -179,11 +203,8 @@ public class ProfileController {
 		Aggregation aggregation = Aggregation.newAggregation(new CustomAggregationOperation(4));
 		AggregationResults<User> output = mongoTemplate.aggregate(aggregation, "users", User.class);
 		List<User> mappedResults = output.getMappedResults().stream()
-				.filter(u -> !(
-							u.getUsername().equals(user.getUsername()) ||
-							u.getFollowers().stream().anyMatch(i -> i.getUsername().equals(user.getUsername()))
-						 )
-				)
+				.filter(u -> !(u.getUsername().equals(user.getUsername())
+						|| u.getFollowers().stream().anyMatch(i -> i.getUsername().equals(user.getUsername()))))
 				.collect(Collectors.toList());
 		FollowUserSuggestion result = new FollowUserSuggestion();
 		mappedResults
