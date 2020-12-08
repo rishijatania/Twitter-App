@@ -14,8 +14,10 @@ public interface TweetRepository extends MongoRepository<Tweet, String> {
 	Optional<List<Tweet>> findByUser(User user);
 
 	// Execute a full-text search and define sorting dynamically
-	Optional<List<Tweet>> findAllBy(TextCriteria criteria,Sort sort);
+	Optional<List<Tweet>> findAllBy(TextCriteria criteria, Sort sort);
 
 	// Paginate over a full-text search result
 	// Page<FullTextDocument> findAllBy(TextCriteria criteria, Pageable pageable);
+
+	Optional<List<Tweet>> findByUserIn(List<User> set);
 }

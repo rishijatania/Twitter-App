@@ -352,6 +352,22 @@ public class TweetController {
 		return ResponseEntity.ok(new MessageResponse("Comment Deleted"));
 	}
 
+	@GetMapping("/feed")
+	public ResponseEntity<?> getTweetsFeedForUser(@RequestAttribute User user) {
+		List<Tweet> tweetList = tweetActionServiceImpl.loadTweetFeedForUser(user);
+		SearchTweetResponse result = new SearchTweetResponse();
+		try {
+			tweetList.forEach(tweet -> {
+				result.getTweets().add(modelMapper.map(tweet, TweetResponse.class));
+			});
+		} catch (Exception e) {
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "Tweet Feed failed!", 400, "", "/search"),
+					HttpStatus.BAD_REQUEST);
+		}
+		return ResponseEntity.ok(result);
+	}
+
 	public String DateToString() {
 		Date date = new Date();
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");

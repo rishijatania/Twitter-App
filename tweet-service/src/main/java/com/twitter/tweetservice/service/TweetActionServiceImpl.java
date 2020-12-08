@@ -43,4 +43,19 @@ public class TweetActionServiceImpl {
 	public Optional<List<Tweet>> findTweetByUser(User user) {
 		return tweetRepository.findByUser(user);
 	}
+
+	public List<Tweet> loadTweetFeedForUser(User user) {
+		List<User> followers = new ArrayList<>(user.getFollowing());
+		Optional<List<Tweet>> tweets = tweetRepository.findByUserIn(followers);
+		Optional<List<Tweet>> usrtweets = findTweetByUser(user);
+		List<Tweet> result = new ArrayList<>();
+		if (tweets.isPresent()) {
+			result.addAll(tweets.get());
+		}
+		if (usrtweets.isPresent()) {
+			result.addAll(usrtweets.get());
+		}
+		result.sort((a, b) -> b.getLastModifiedDate().compareTo(a.getLastModifiedDate()));
+		return result;
+	}
 }
