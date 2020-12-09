@@ -25,11 +25,11 @@ import com.twitter.tweetservice.repository.CommentRepository;
 import com.twitter.tweetservice.repository.TagRepository;
 import com.twitter.tweetservice.repository.TweetRepository;
 import com.twitter.tweetservice.service.ImageService;
+import com.twitter.tweetservice.service.SlackReportService;
 import com.twitter.tweetservice.service.TweetActionServiceImpl;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -66,10 +66,10 @@ public class TweetController {
 	private TagRepository tagRepository;
 
 	@Autowired
-	private MongoTemplate mongoTemplate;
+	private TweetActionServiceImpl tweetActionServiceImpl;
 
 	@Autowired
-	private TweetActionServiceImpl tweetActionServiceImpl;
+	SlackReportService slackReportService;
 
 	@GetMapping(value = "/testHealth")
 	public ResponseEntity<?> userAccess(@RequestAttribute User user) {
@@ -117,9 +117,10 @@ public class TweetController {
 				});
 			}
 		} catch (Exception e) {
+			slackReportService.report(e.getMessage(), user.getUsername(), "/tweet");
 			return new ResponseEntity<>(
-					new ErrorMessageResponse(DateToString(), "Tweet Create sfailed!", 400, "", "/tweet"),
-					HttpStatus.BAD_REQUEST);
+					new ErrorMessageResponse(DateToString(), "Tweet Create failed!", 500, "", "/tweet"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return ResponseEntity.ok(modelMapper.map(tweet, TweetResponse.class));
 	}
@@ -145,9 +146,10 @@ public class TweetController {
 			t.get().setContent(tweetFormDTO.getContent());
 			tweetRepository.save(t.get());
 		} catch (Exception e) {
+			slackReportService.report(e.getMessage(), user.getUsername(), "/tweet");
 			return new ResponseEntity<>(
-					new ErrorMessageResponse(DateToString(), "Tweet Update failed!", 400, "", "/tweet"),
-					HttpStatus.BAD_REQUEST);
+					new ErrorMessageResponse(DateToString(), "Tweet Update failed!", 500, "", "/tweet"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return ResponseEntity.ok(modelMapper.map(t.get(), TweetResponse.class));
 	}
@@ -172,9 +174,10 @@ public class TweetController {
 			// Delete Tweet
 			tweetRepository.delete(t.get());
 		} catch (Exception e) {
+			slackReportService.report(e.getMessage(), user.getUsername(), "/tweet");
 			return new ResponseEntity<>(
-					new ErrorMessageResponse(DateToString(), "Tweet Delete failed!", 400, "", "/tweet"),
-					HttpStatus.BAD_REQUEST);
+					new ErrorMessageResponse(DateToString(), "Tweet Delete failed!", 500, "", "/tweet"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return ResponseEntity.ok(new MessageResponse("Tweet Deleted"));
 	}
@@ -185,7 +188,7 @@ public class TweetController {
 			Optional<Tweet> t = tweetRepository.findById(id);
 			if (!t.isPresent()) {
 				return new ResponseEntity<>(
-						new ErrorMessageResponse(DateToString(), "Tweet not found", 404, "", "/tweet"),
+						new ErrorMessageResponse(DateToString(), "Tweet not found", 404, "", "/like"),
 						HttpStatus.NOT_FOUND);
 			}
 
@@ -202,14 +205,15 @@ public class TweetController {
 			tweetRepository.save(t.get());
 			return ResponseEntity.ok(modelMapper.map(t.get(), TweetResponse.class));
 		} catch (Exception e) {
+			slackReportService.report(e.getMessage(), user.getUsername(), "/like");
 			return new ResponseEntity<>(
-					new ErrorMessageResponse(DateToString(), "Tweet Like failed!", 400, "", "/tweet"),
-					HttpStatus.BAD_REQUEST);
+					new ErrorMessageResponse(DateToString(), "Tweet Like failed!", 500, "", "/like"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@GetMapping("/search")
-	public ResponseEntity<?> searchTweet(@RequestParam String text) {
+	public ResponseEntity<?> searchTweet(@RequestAttribute User user, @RequestParam String text) {
 		if (text == null || text.isEmpty()) {
 			return new ResponseEntity<>(
 					new ErrorMessageResponse(DateToString(), "Please enter search text!", 400, "", "/search"),
@@ -222,15 +226,16 @@ public class TweetController {
 				result.getTweets().add(modelMapper.map(tweet, TweetResponse.class));
 			});
 		} catch (Exception e) {
+			slackReportService.report(e.getMessage(), user.getUsername(), "/search");
 			return new ResponseEntity<>(
-					new ErrorMessageResponse(DateToString(), "Tweet Search failed!", 400, "", "/search"),
-					HttpStatus.BAD_REQUEST);
+					new ErrorMessageResponse(DateToString(), "Tweet Search failed!", 500, "", "/search"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return ResponseEntity.ok(result);
 	}
 
 	@GetMapping("/searchTag")
-	public ResponseEntity<?> searchTag(@RequestParam String tag) {
+	public ResponseEntity<?> searchTag(@RequestAttribute User user, @RequestParam String tag) {
 		if (tag == null || tag.isEmpty()) {
 			return new ResponseEntity<>(
 					new ErrorMessageResponse(DateToString(), "Please enter search tag!", 400, "", "/searchTag"),
@@ -249,9 +254,10 @@ public class TweetController {
 						HttpStatus.NOT_FOUND);
 			}
 		} catch (Exception e) {
+			slackReportService.report(e.getMessage(), user.getUsername(), "/searchTag");
 			return new ResponseEntity<>(
-					new ErrorMessageResponse(DateToString(), "Tweet Tag Search failed!", 400, "", "/searchTag"),
-					HttpStatus.BAD_REQUEST);
+					new ErrorMessageResponse(DateToString(), "Tweet Tag Search failed!", 500, "", "/searchTag"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return ResponseEntity.ok(result);
 	}
@@ -287,9 +293,10 @@ public class TweetController {
 				result.getTweets().add(modelMapper.map(tweet, TweetResponse.class));
 			});
 		} catch (Exception e) {
+			slackReportService.report(e.getMessage(), user.getUsername(), "/search");
 			return new ResponseEntity<>(
-					new ErrorMessageResponse(DateToString(), "Tweet Search failed!", 400, "", "/search"),
-					HttpStatus.BAD_REQUEST);
+					new ErrorMessageResponse(DateToString(), "Tweet Search failed!", 500, "", "/search"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return ResponseEntity.ok(result);
 	}
@@ -314,9 +321,10 @@ public class TweetController {
 			tweet.get().getComments().add(comment);
 			tweetRepository.save(tweet.get());
 		} catch (Exception e) {
+			slackReportService.report(e.getMessage(), user.getUsername(), "/comment");
 			return new ResponseEntity<>(
-					new ErrorMessageResponse(DateToString(), "Comment Create failed!", 400, "", "/comment"),
-					HttpStatus.BAD_REQUEST);
+					new ErrorMessageResponse(DateToString(), "Comment Create failed!", 500, "", "/comment"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return ResponseEntity.ok(modelMapper.map(tweet.get(), TweetResponse.class));
 	}
@@ -345,9 +353,10 @@ public class TweetController {
 			// Delete Comment
 			commentRepository.delete(comment.get());
 		} catch (Exception e) {
+			slackReportService.report(e.getMessage(), user.getUsername(), "/Comment");
 			return new ResponseEntity<>(
-					new ErrorMessageResponse(DateToString(), "Comment Delete failed!", 400, "", "/tweet"),
-					HttpStatus.BAD_REQUEST);
+					new ErrorMessageResponse(DateToString(), "Comment Delete failed!", 500, "", "/Comment"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return ResponseEntity.ok(new MessageResponse("Comment Deleted"));
 	}
@@ -361,8 +370,9 @@ public class TweetController {
 				result.getTweets().add(modelMapper.map(tweet, TweetResponse.class));
 			});
 		} catch (Exception e) {
+			slackReportService.report(e.getMessage(), user.getUsername(), "/feed");
 			return new ResponseEntity<>(
-					new ErrorMessageResponse(DateToString(), "Tweet Feed failed!", 400, "", "/search"),
+					new ErrorMessageResponse(DateToString(), "Tweet Feed failed!", 400, "", "/feed"),
 					HttpStatus.BAD_REQUEST);
 		}
 		return ResponseEntity.ok(result);
