@@ -23,6 +23,7 @@ import com.twitter.twitterbackend.repository.UserRepository;
 import com.twitter.twitterbackend.security.services.UserDetailsServiceImpl;
 import com.twitter.twitterbackend.service.CustomAggregationOperation;
 import com.twitter.twitterbackend.service.ImageService;
+import com.twitter.twitterbackend.service.SlackReportService;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,9 @@ public class ProfileController {
 	@Autowired
 	MongoTemplate mongoTemplate;
 
+	@Autowired
+	SlackReportService slackReportService;
+
 	@GetMapping("/user")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public String userAccess() {
@@ -103,9 +107,10 @@ public class ProfileController {
 			}
 			userRepository.save(user);
 		} catch (Exception e) {
+			slackReportService.report(e.getMessage(), user.getUsername(), "/profile");
 			return new ResponseEntity<>(
-					new ErrorMessageResponse(DateToString(), "User update failed!", 400, "", "/profile"),
-					HttpStatus.BAD_REQUEST);
+					new ErrorMessageResponse(DateToString(), "User update failed!", 500, "", "/profile"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 		return ResponseEntity.ok(modelMapper.map(user, UserResponse.class));
@@ -118,18 +123,20 @@ public class ProfileController {
 					new ErrorMessageResponse(DateToString(), "Please enter search text!", 400, "", "/search"),
 					HttpStatus.BAD_REQUEST);
 		}
+		User user = userServiceImpl.getCurrentUserFromSession();
 		SearchUserResponse result = new SearchUserResponse();
 		try {
 			Optional<List<User>> users = userRepository.searchByUsername(username);
 			if (users.isPresent()) {
-				users.get().forEach(user -> {
-					result.getUsers().add(modelMapper.map(user, UserResponse.class));
+				users.get().forEach(usert -> {
+					result.getUsers().add(modelMapper.map(usert, UserResponse.class));
 				});
 			}
 		} catch (Exception e) {
+			slackReportService.report(e.getMessage(), user.getUsername(), "/search");
 			return new ResponseEntity<>(
-					new ErrorMessageResponse(DateToString(), "User Search failed!", 400, "", "/search"),
-					HttpStatus.BAD_REQUEST);
+					new ErrorMessageResponse(DateToString(), "User Search failed!", 500, "", "/search"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return ResponseEntity.ok(result);
 	}
@@ -157,11 +164,17 @@ public class ProfileController {
 					new ErrorMessageResponse(DateToString(), "User Not Found!", 400, "", "/followers"),
 					HttpStatus.BAD_REQUEST);
 		}
-		user.getFollowing().add(followUser.get());
-		followUser.get().getFollowers().add(user);
-		userRepository.save(user);
-		userRepository.save(followUser.get());
-
+		try {
+			user.getFollowing().add(followUser.get());
+			followUser.get().getFollowers().add(user);
+			userRepository.save(user);
+			userRepository.save(followUser.get());
+		} catch (Exception e) {
+			slackReportService.report(e.getMessage(), user.getUsername(), "/followers");
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "User Follow failed!", 500, "", "/followers"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 		return ResponseEntity.ok(new MessageResponse("User Followed!"));
 	}
 
@@ -188,11 +201,17 @@ public class ProfileController {
 					new ErrorMessageResponse(DateToString(), "User Not Found!", 400, "", "/followers"),
 					HttpStatus.BAD_REQUEST);
 		}
-		user.getFollowing().removeIf(u -> u.getUsername().equals(username));
-		followUser.get().getFollowers().removeIf(u -> u.getUsername().equals(user.getUsername()));
-		userRepository.save(user);
-		userRepository.save(followUser.get());
-
+		try {
+			user.getFollowing().removeIf(u -> u.getUsername().equals(username));
+			followUser.get().getFollowers().removeIf(u -> u.getUsername().equals(user.getUsername()));
+			userRepository.save(user);
+			userRepository.save(followUser.get());
+		} catch (Exception e) {
+			slackReportService.report(e.getMessage(), user.getUsername(), "/followers");
+			return new ResponseEntity<>(
+					new ErrorMessageResponse(DateToString(), "User Unfollow failed!", 500, "", "/followers"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 		return ResponseEntity.ok(new MessageResponse("User unFollowed!"));
 	}
 
@@ -200,15 +219,22 @@ public class ProfileController {
 	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<?> getFollowing() {
 		User user = userServiceImpl.getCurrentUserFromSession();
-		Aggregation aggregation = Aggregation.newAggregation(new CustomAggregationOperation(4));
-		AggregationResults<User> output = mongoTemplate.aggregate(aggregation, "users", User.class);
-		List<User> mappedResults = output.getMappedResults().stream()
-				.filter(u -> !(u.getUsername().equals(user.getUsername())
-						|| u.getFollowers().stream().anyMatch(i -> i.getUsername().equals(user.getUsername()))))
-				.collect(Collectors.toList());
 		FollowUserSuggestion result = new FollowUserSuggestion();
-		mappedResults
-				.forEach(item -> result.getMappedResults().add(modelMapper.map(item, UserDetailMinResponse.class)));
+		try {
+			Aggregation aggregation = Aggregation.newAggregation(new CustomAggregationOperation(4));
+			AggregationResults<User> output = mongoTemplate.aggregate(aggregation, "users", User.class);
+			List<User> mappedResults = output.getMappedResults().stream()
+					.filter(u -> !(u.getUsername().equals(user.getUsername())
+							|| u.getFollowers().stream().anyMatch(i -> i.getUsername().equals(user.getUsername()))))
+					.collect(Collectors.toList());
+
+			mappedResults
+					.forEach(item -> result.getMappedResults().add(modelMapper.map(item, UserDetailMinResponse.class)));
+		} catch (Exception e) {
+			slackReportService.report(e.getMessage(), user.getUsername(), "/followsuggestions");
+			return new ResponseEntity<>(new ErrorMessageResponse(DateToString(), "User followsuggestions failed!", 500,
+					"", "/followsuggestions"), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 		return ResponseEntity.ok(result);
 	}
 
