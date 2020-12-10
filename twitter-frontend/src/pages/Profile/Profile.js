@@ -1,25 +1,16 @@
-import React from "react";
-import { useHistory, Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+
 import { makeStyles } from "@material-ui/core/styles";
-import {
-  Tab,
-  Tabs,
-  Button,
-  Paper,
-  Avatar,
-  Box,
-  Hidden,
-  Divider,
-} from "@material-ui/core";
+import { Button, Paper, Avatar, Box } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
-import {
-  Lock,
-  KeyboardBackspace,
-  CalendarToday,
-  NavigateBefore,
-  NavigateNext,
-} from "@material-ui/icons";
+
+import { Lock } from "@material-ui/icons";
+
+import { snackbarService } from "uno-material-ui";
+
+import { getUserProfile } from "../../services/UserService";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,31 +21,6 @@ const useStyles = makeStyles((theme) => ({
     background: "white",
     color: "gray",
   },
-  tab: {
-    minWidth: "100px",
-    textTransform: "capitalize",
-    borderBottomColor: "rgb(29, 161, 242)",
-    "&:hover": {
-      backgroundColor: "rgb(206,233,234)",
-      color: "rgba(29,161,242,1.00)",
-    },
-    "&:focus": {
-      backgroundColor: "rgb(206,233,234)",
-      color: "rgba(29,161,242,1.00)",
-    },
-  },
-  tabs: {
-    flexGrow: 1,
-    display: "flex",
-    fontSize: "15px",
-    width: "100%",
-    "& .MuiTabs-indicator": {
-      backgroundColor: "rgba(29,161,242,1.00)",
-    },
-    [theme.breakpoints.down("xs")]: {
-      minWidth: "80px",
-    },
-  },
   paper: {
     backgroundColor: "rgb(204, 214, 221)",
     height: "12rem",
@@ -64,14 +30,6 @@ const useStyles = makeStyles((theme) => ({
   horizontalDiv: {
     display: "flex",
     flexDirection: "row",
-  },
-  div1: {
-    display: "flex",
-    flexDirection: "row",
-    marginTop: "1rem",
-  },
-  backArrow: {
-    color: "rgba(29,161,242,1.00)",
   },
   btn: {
     border: "1.5px solid rgba(29,161,242,1.00)",
@@ -98,18 +56,18 @@ const useStyles = makeStyles((theme) => ({
     width: "8rem",
     justifyContent: "center",
   },
-  nameTypo: {
+  name: {
     color: "black",
     font: "inherit",
     fontWeight: "bold",
     fontSize: "20px",
   },
-  linksDiv: {
+  followersDiv: {
     display: "flex",
     flexDirection: "row",
     marginBottom: "1rem",
   },
-  links: {
+  followers: {
     textDecoration: "none",
     font: "inherit",
     color: "grey",
@@ -118,93 +76,91 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Profile = (props) => {
+const Profile = () => {
   const classes = useStyles();
-  const history = useHistory();
-  const [value, setValue] = React.useState(0);
-  const [tab, setTab] = React.useState("Tweets");
-  const [editProfile, setEditProfile] = React.useState(false);
+  const [user, setUser] = useState(null);
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
-  const handleNextTab = () => {
-    let newValue = value;
-    if (newValue !== 3) {
-      newValue = newValue + 1;
-      setValue(newValue);
-    }
-  };
+  useEffect(() => {
+    getUserProfile().then(
+      (response) => {
+        setUser(response.data);
+      },
+      (error) => {
+        const errorMessage =
+          (error.response &&
+            error.response.data &&
+            error.response.data.message) ||
+          error.message ||
+          error.toString();
+        snackbarService.showSnackbar(errorMessage, "error");
+      }
+    );
+  }, []);
 
-  const handleBackTab = () => {
-    let newValue = value;
-    if (newValue !== 0) {
-      newValue = newValue - 1;
-      setValue(newValue);
-    }
-  };
-
-  const openProfileEditor = () => {
-    setEditProfile(true);
-  };
+  const avatarUrl =
+    user && user.profilePicUrl ? user.profilePicUrl : "/broken-image.jpg";
 
   return (
-    <Grid container xs={12}>
-      <Grid item xs={12}>
-        <Paper className={classes.paper}>
-          {" "}
-          <div className={classes.avatarBox}>
-            <Box>
-              <Avatar className={classes.avatar}>Profile Image</Avatar>
-            </Box>
+    <Grid container>
+      <Paper className={classes.root}>
+        <Grid item xs={12}>
+          <Paper className={classes.paper}>
+            {" "}
+            <div className={classes.avatarBox}>
+              <Box>
+                <Avatar className={classes.avatar} src={avatarUrl}></Avatar>
+              </Box>
+            </div>
+          </Paper>
+        </Grid>
+        <Grid style={{ marginLeft: "1rem" }} item xs={12}>
+          <div
+            style={{ justifyContent: "space-between" }}
+            className={classes.horizontalDiv}
+          >
+            <div></div>
+            <Button
+              className={classes.btn}
+              component={Link}
+              to="/u/settings/profile"
+            >
+              <span>Edit profile</span>
+            </Button>
           </div>
-        </Paper>
-      </Grid>
-      <Grid style={{ marginLeft: "1rem" }} item xs={12}>
-        <div
-          style={{ justifyContent: "space-between" }}
-          className={classes.horizontalDiv}
-        >
-          <div></div>
-          <Button onClick={openProfileEditor} className={classes.btn}>
-            <span>Edit profile</span>
-          </Button>
-        </div>
-        <div style={{ marginBottom: "1rem" }}>
-          <div style={{ marginTop: "1rem" }} className={classes.horizontalDiv}>
-            <Typography className={classes.nameTypo} variant="h6" id="name">
-              Emi Chukwuka
+          <div style={{ marginBottom: "1rem" }}>
+            <div
+              style={{ marginTop: "1rem" }}
+              className={classes.horizontalDiv}
+            >
+              <Typography className={classes.name} variant="h6" id="name">
+                {user && `${user.firstname} ${user.lastname}`}
+              </Typography>
+              <Lock className={classes.lock} />
+            </div>
+            <span>
+              <Typography id="username">
+                <small>{user && `@${user.username}`}</small>
+              </Typography>
+            </span>
+          </div>
+          <div style={{ marginBottom: "1rem" }}>
+            <span>
+              <Typography id="bio">
+                {user && user.bio ? user.bio : "Bio"}
+              </Typography>
+            </span>
+          </div>
+          <div className={classes.followersDiv}>
+            <Typography className={classes.followers}>
+              {user && `${user.followersCount} Followers`}
             </Typography>
-            <Lock />
-          </div>
-          <span>
-            <Typography id="username">
-              <small>@emi_chukwuka</small>
+            <div style={{ width: "2.5rem" }}></div>
+            <Typography className={classes.followers}>
+              {user && `${user.followingCount} Following`}
             </Typography>
-          </span>
-        </div>
-        <div style={{ marginBottom: "1rem" }}>
-          <span>
-            <Typography id="status">My status</Typography>
-          </span>
-        </div>
-        <div style={{ marginBottom: "1rem" }}>
-          <div className={classes.horizontalDiv}>
-            <CalendarToday fontSize="small" />
-            <div style={{ width: "0.8rem" }}></div>
-            <Typography id="date-joined">Date Joined</Typography>
           </div>
-        </div>
-        <div className={classes.linksDiv}>
-          <Link className={classes.links} to="/following">
-            Following
-          </Link>
-          <div style={{ width: "2.5rem" }}></div>
-          <Link className={classes.links} to="/followers">
-            Followers
-          </Link>
-        </div>
-      </Grid>
+        </Grid>
+      </Paper>
     </Grid>
   );
 };

@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, Route, Link, NavLink } from "react-router-dom";
+import { Switch, Route, Link } from "react-router-dom";
 
 import AppBar from "@material-ui/core/AppBar";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -24,6 +24,7 @@ import ProfileIcon from "@material-ui/icons/PersonOutlineOutlined";
 import Home from "../Home/Home";
 import Explore from "../Explore/Explore";
 import Profile from "../Profile/Profile";
+import EditProfile from "../Profile/EditProfile";
 
 const drawerWidth = 240;
 
@@ -149,9 +150,7 @@ function Dashboard(props) {
           <ListItemIcon>
             <HomeIcon className={classes.icons} />
           </ListItemIcon>
-          <NavLink to="/u/home" className={classes.link}>
-            <ListItemText primary="Home" />
-          </NavLink>
+          <ListItemText primary="Home" />
         </ListItem>
 
         <ListItem
@@ -164,9 +163,7 @@ function Dashboard(props) {
           <ListItemIcon>
             <HashTag className={classes.icons} />
           </ListItemIcon>
-          <NavLink to="/u/explore" className={classes.link}>
-            <ListItemText primary="Explore" />
-          </NavLink>
+          <ListItemText primary="Explore" />
         </ListItem>
 
         <ListItem
@@ -179,9 +176,7 @@ function Dashboard(props) {
           <ListItemIcon>
             <ProfileIcon className={classes.icons} />
           </ListItemIcon>
-          <NavLink to="/u/profile" className={classes.link}>
-            <ListItemText primary="Profile" />
-          </NavLink>
+          <ListItemText primary="Profile" />
         </ListItem>
       </List>
     </div>
@@ -249,6 +244,7 @@ function Dashboard(props) {
               <Route path="/u/home" component={Home} />
               <Route path="/u/explore" component={Explore} />
               <Route path="/u/profile" component={Profile} />
+              <Route path="/u/settings/profile" component={EditProfile} />
             </Switch>
           </Grid>
           <Grid item md={3}></Grid>
