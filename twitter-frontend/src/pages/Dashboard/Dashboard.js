@@ -19,12 +19,14 @@ import { makeStyles, useTheme } from "@material-ui/core/styles";
 
 import MenuIcon from "@material-ui/icons/Menu";
 import HomeIcon from "@material-ui/icons/Home";
+import TwitterIcon from "@material-ui/icons/Twitter";
 import ProfileIcon from "@material-ui/icons/PersonOutlineOutlined";
 
 import Home from "../Home/Home";
 import Explore from "../Explore/Explore";
 import Profile from "../Profile/Profile";
 import EditProfile from "../Profile/EditProfile";
+import WhoToFollow from "../WhoToFollow/WhoToFollow";
 
 const drawerWidth = 240;
 
@@ -39,6 +41,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   appBar: {
+    background: "white",
     [theme.breakpoints.up("sm")]: {
       width: `calc(100% - ${drawerWidth}px)`,
       marginLeft: drawerWidth,
@@ -102,6 +105,9 @@ const useStyles = makeStyles((theme) => ({
     "&:hover, &:active, &.active": {
       color: "rgba(29,161,242,1.00)",
     },
+  },
+  twitterIcon: {
+    color: "#00acee",
   },
   svg: {
     display: "flex",
@@ -199,6 +205,7 @@ function Dashboard(props) {
           >
             <MenuIcon />
           </IconButton>
+          <TwitterIcon fontSize="large" className={classes.twitterIcon} />
           <Typography variant="h6" noWrap>
             {value}
           </Typography>
@@ -247,7 +254,9 @@ function Dashboard(props) {
               <Route path="/u/settings/profile" component={EditProfile} />
             </Switch>
           </Grid>
-          <Grid item md={3}></Grid>
+          <Grid item md={3}>
+            <WhoToFollow />
+          </Grid>
         </Grid>
       </main>
     </div>

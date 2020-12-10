@@ -36,4 +36,16 @@ const updateUserProfile = async (
   return response.data;
 };
 
-export { getUserProfile, updateUserProfile };
+const getFollowSuggestions = () => {
+  return axios.get(API_URL + "followsuggestions", { headers: authHeader() });
+};
+
+const followUser = (username) => {
+  return axios.post(
+    API_URL + "followers",
+    { username },
+    { headers: authHeader() }
+  );
+};
+
+export { getUserProfile, updateUserProfile, getFollowSuggestions, followUser };
