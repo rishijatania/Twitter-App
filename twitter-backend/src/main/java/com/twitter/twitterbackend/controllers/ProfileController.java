@@ -69,10 +69,10 @@ public class ProfileController {
 	@Autowired
 	SlackReportService slackReportService;
 
-	@GetMapping("/user")
-	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	public String userAccess() {
-		return "User Content.";
+	@GetMapping("/verify")
+	@PreAuthorize("hasRole('USER')")
+	public ResponseEntity<?> userAccessVerify() {
+		return ResponseEntity.ok("User Verified");
 	}
 
 	@GetMapping("/profile")
@@ -215,9 +215,9 @@ public class ProfileController {
 		return ResponseEntity.ok(new MessageResponse("User unFollowed!"));
 	}
 
-	@GetMapping("/followsuggestions")
+	@GetMapping("/followSuggestions")
 	@PreAuthorize("hasRole('USER')")
-	public ResponseEntity<?> getFollowing() {
+	public ResponseEntity<?> getFollowSuggestions() {
 		User user = userServiceImpl.getCurrentUserFromSession();
 		FollowUserSuggestion result = new FollowUserSuggestion();
 		try {

@@ -37,7 +37,7 @@ const updateUserProfile = async (
 };
 
 const getFollowSuggestions = () => {
-  return axios.get(API_URL + "followsuggestions", { headers: authHeader() });
+  return axios.get(API_URL + "followSuggestions", { headers: authHeader() });
 };
 
 const followUser = (username) => {

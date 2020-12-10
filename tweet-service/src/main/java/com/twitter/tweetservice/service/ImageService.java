@@ -103,7 +103,7 @@ public class ImageService {
 	public String generatePresignedURL(String objectKey) {
 		java.util.Date expiration = new java.util.Date();
 		long expTimeMillis = expiration.getTime();
-		expTimeMillis += 1000 * 60 * 2;
+		expTimeMillis += 1000 * 60 * 720;
 		expiration.setTime(expTimeMillis);
 
 		GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, objectKey)
