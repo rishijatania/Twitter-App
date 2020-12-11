@@ -7,4 +7,5 @@ Timeloop
 slack_webhook
 # spacy
 # profanity-filter
+# numpy
 # profanity-check

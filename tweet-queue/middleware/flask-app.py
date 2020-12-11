@@ -30,6 +30,12 @@ PROFANITY_IDX = 0.5 if os.getenv(
     'PROFANITY_IDX') == None else os.getenv('PROFANITY_IDX')
 SLACK_WEBHOOK_URI = "" if os.getenv(
     'SLACK_WEBHOOK_URI') == None else os.getenv('SLACK_WEBHOOK_URI')
+RAPID_API_URL = "" if os.getenv(
+    'RAPID_API_URL') == None else os.getenv('RAPID_API_URL')
+RAPID_API_HOST = "" if os.getenv(
+    'RAPID_API_HOST') == None else os.getenv('RAPID_API_HOST')
+RAPID_API_KEY = "" if os.getenv(
+    'RAPID_API_KEY') == None else os.getenv('RAPID_API_KEY')
 
 slack = Slack(url=SLACK_WEBHOOK_URI)
 
@@ -168,6 +174,15 @@ def tweet_service(id=None):
     return _proxy_tweet_service()
 
 
+def check_profanity(text):
+    response = requests.request("GET", RAPID_API_URL, headers={
+        'x-rapidapi-host': RAPID_API_HOST,
+        'x-rapidapi-key': RAPID_API_KEY
+    }, params={'text': text}
+    )
+    return response.text=='true'
+
+
 @app.route('/api/tweet/<id>/comment', methods=['POST'])
 @app.route('/api/tweet/<id>/comment/<cid>', methods=['DELETE'])
 def comment(id=None, cid=None):
@@ -177,10 +192,14 @@ def comment(id=None, cid=None):
             'Comment cannot be empty', str(datetime.now()), 400, "", "/comment")
         return json.dumps(respo.__dict__), 400
 
-    # if request.method == 'POST' and pf.is_profanerequest.json['text']:
-    # 	respo = ErrorResponse.ErrorResponseMessage(
-    #         'Offensive Comments are Not Allowed!', str(datetime.now()), 400, "", "/comments")
-    # 	return json.dumps(respo.__dict__), 400
+    # print(predict_prob([request.json['text']]))
+    # print(pf.censor(request.json['text']))
+    # and predict_prob([request.json['text']]) > PROFANITY_IDX #and pf.is_profanerequest.json['text']:
+    isprofane = check_profanity(request.json['text'])
+    if request.method == 'POST' and isprofane:
+        respo = ErrorResponse.ErrorResponseMessage(
+            'Offensive Comments are Not Allowed!', str(datetime.now()), 400, "", "/comments")
+        return json.dumps(respo.__dict__), 400
 
     apiObj = {
         'requestPath': request.path,
@@ -212,10 +231,11 @@ def tweet(id=None, cid=None):
             'Invalid Request!', str(datetime.now()), 400, "", "/tweet")
         return json.dumps(respo.__dict__), 400
 
-    # if (request.method == 'POST' or request.method == 'PUT') and pf.is_profane(request.form['tweetForm'].content):
-    #     respo = ErrorResponse.ErrorResponseMessage(
-    #         'Offensive Tweets are Not Allowed!', str(datetime.now()), 400, "", "/tweet")
-    #     return json.dumps(respo.__dict__), 400
+    isprofane = check_profanity(request.form['tweetForm'])
+    if (request.method == 'POST' or request.method == 'PUT') and isprofane:
+        respo = ErrorResponse.ErrorResponseMessage(
+            'Offensive Tweets are Not Allowed!', str(datetime.now()), 400, "", "/tweet")
+        return json.dumps(respo.__dict__), 400
 
     filename = None
 
