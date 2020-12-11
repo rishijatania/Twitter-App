@@ -3,8 +3,10 @@ package com.twitter.tweetservice.controller;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -81,7 +83,10 @@ public class TweetController {
 			@RequestParam(value = "file", required = false) MultipartFile file,
 			@RequestParam(value = "tweetForm", required = true) @Valid String tweetForm) {
 
-		if (file != null && !file.getOriginalFilename().isEmpty() && !file.getContentType().startsWith("image")) {
+		if (file != null && !file.isEmpty()
+				&& !((file.getContentType() != null && file.getContentType().startsWith("image"))
+						|| getImageExt().contains(file.getOriginalFilename()
+								.substring(file.getOriginalFilename().lastIndexOf(".") + 1)))) {
 			return new ResponseEntity<>(
 					new ErrorMessageResponse(DateToString(), "File not of type Image!", 400, "", "/tweet"),
 					HttpStatus.BAD_REQUEST);
@@ -101,8 +106,8 @@ public class TweetController {
 			if (tweetFormDTO.isFileAttached() && file != null && !file.getOriginalFilename().isEmpty()) {
 				String[] pic = imageService.updateImage(file, "", tweet.getId());
 				File fileToUpload = new File();
-				fileToUpload.setUrl(pic[1]);
-				fileToUpload.setFileName(pic[0]);
+				fileToUpload.setUrl(pic == null || pic[1].isEmpty() ? null : pic[1]);
+				fileToUpload.setFileName(pic == null || pic[0].isEmpty() ? null : pic[0]);
 				tweet.setFile(fileToUpload);
 				tweetRepository.save(tweet);
 			}
@@ -382,5 +387,13 @@ public class TweetController {
 		Date date = new Date();
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
 		return dateFormat.format(date);
+	}
+
+	public Set<String> getImageExt() {
+		Set<String> imageExt = new HashSet<>();
+		imageExt.add("jpeg");
+		imageExt.add("png");
+		imageExt.add("jpg");
+		return imageExt;
 	}
 }
