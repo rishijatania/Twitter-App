@@ -5,8 +5,12 @@ name: Java CI with Maven
 on:
   push:
     branches: [ main ]
+    paths: 
+      - tweet-service
   pull_request:
     branches: [ main ]
+    paths: 
+      - tweet-service
 jobs:
   build:
     runs-on: ubuntu-latest
