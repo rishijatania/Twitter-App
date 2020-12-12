@@ -9,6 +9,7 @@ import ErrorResponse
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 from slack_webhook import Slack
+import jwt
 # from profanity_check import predict, predict_prob
 # import spacy
 # from profanity_filter import ProfanityFilter
@@ -180,7 +181,7 @@ def check_profanity(text):
         'x-rapidapi-key': RAPID_API_KEY
     }, params={'text': text}
     )
-    return response.text=='true'
+    return response.text == 'true'
 
 
 @app.route('/api/tweet/<id>/comment', methods=['POST'])
@@ -195,10 +196,21 @@ def comment(id=None, cid=None):
     # print(predict_prob([request.json['text']]))
     # print(pf.censor(request.json['text']))
     # and predict_prob([request.json['text']]) > PROFANITY_IDX #and pf.is_profanerequest.json['text']:
-    isprofane = check_profanity(request.json['text'])
-    if request.method == 'POST' and isprofane:
+    if request.method == 'POST' and check_profanity(request.json['text']):
         respo = ErrorResponse.ErrorResponseMessage(
             'Offensive Comments are Not Allowed!', str(datetime.now()), 400, "", "/comments")
+
+        username = jwt.decode(
+            request.headers['Authorization'].split(' ')[1], verify=False)
+        slack.post(attachments=[
+            {
+                "fallback": "Plain-text summary of the attachment.",
+                "color": "#FF0000",
+                "pretext": "Offensive Comment - Error",
+                "author_name": "Username - "+username['sub'],
+                "title": "Comment Service",
+            }
+        ])
         return json.dumps(respo.__dict__), 400
 
     apiObj = {
@@ -231,10 +243,21 @@ def tweet(id=None, cid=None):
             'Invalid Request!', str(datetime.now()), 400, "", "/tweet")
         return json.dumps(respo.__dict__), 400
 
-    isprofane = check_profanity(request.form['tweetForm'])
-    if (request.method == 'POST' or request.method == 'PUT') and isprofane:
+    if (request.method == 'POST' or request.method == 'PUT') and check_profanity(request.form['tweetForm']):
         respo = ErrorResponse.ErrorResponseMessage(
             'Offensive Tweets are Not Allowed!', str(datetime.now()), 400, "", "/tweet")
+
+        username = jwt.decode(
+            request.headers['Authorization'].split(' ')[1], verify=False)
+        slack.post(attachments=[
+            {
+                "fallback": "Plain-text summary of the attachment.",
+                "color": "#FF0000",
+                "pretext": "Offensive Tweet - Error",
+                "author_name": "Username - "+username['sub'],
+                "title": "Tweet Service",
+            }
+        ])
         return json.dumps(respo.__dict__), 400
 
     filename = None

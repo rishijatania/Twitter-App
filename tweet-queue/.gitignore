@@ -1,3 +1,4 @@
 .env
 middleware/filestore
 __pycache__
+.vscode

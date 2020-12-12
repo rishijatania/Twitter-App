@@ -5,6 +5,7 @@ werkzeug
 rejson
 Timeloop
 slack_webhook
+pyjwt
 # spacy
 # profanity-filter
 # numpy

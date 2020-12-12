@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: twitter-middleware-config
+data:
+  BACKEND_SERVICE_URL: http://twitter-backend:8080
+  TWEET_SERVICE_URL: http://twitter-tweet:8081
+  REDIS_HOST: twitter-queue
+  RAPID_API_URL: https://community-purgomalum.p.rapidapi.com/containsprofanity
+  RAPID_API_HOST: community-purgomalum.p.rapidapi.com

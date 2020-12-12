@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twitter-backend
+  labels:
+    app: twitter-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: twitter-backend
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: twitter-backend
+    spec:
+      containers:
+        - name: twitter-backend
+          image: rishijatania/twitter-backend
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: twitter-backend-config
+            - secretRef:
+                name: twitter-backend-secret
+          ports:
+            - containerPort: 8080

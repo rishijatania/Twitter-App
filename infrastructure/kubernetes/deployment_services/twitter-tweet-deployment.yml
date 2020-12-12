@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twitter-tweet
+  labels:
+    app: twitter-tweet
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: twitter-tweet
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: twitter-tweet
+    spec:
+      containers:
+        - name: twitter-tweet
+          image: rishijatania/twitter-tweet
+          imagePullPolicy: Always
+          envFrom:      
+            - configMapRef:
+                name: twitter-tweet-config
+            - secretRef:
+                name: twitter-backend-secret
+          ports:
+            - containerPort: 8080
