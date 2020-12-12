@@ -32,12 +32,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const WhoToFollow = () => {
+const WhoToFollow = (props) => {
   const classes = useStyles();
 
   const [followSuggestions, setFollowSuggestions] = useState(null);
 
   useEffect(() => {
+    refreshFollowSuggestions();
+  }, []);
+
+  const refreshFollowSuggestions = () => {
     getFollowSuggestions().then(
       (response) => {
         setFollowSuggestions(response.data.mappedResults);
@@ -52,13 +56,14 @@ const WhoToFollow = () => {
         console.log(errorMessage);
       }
     );
-  }, []);
+  };
 
   const handleFollow = (username) => {
     followUser(username).then(
       (response) => {
         snackbarService.showSnackbar(response.data.message);
-        window.location.reload(false);
+        refreshFollowSuggestions();
+        props.handleUserUpdate();
       },
       (error) => {
         const errorMessage =

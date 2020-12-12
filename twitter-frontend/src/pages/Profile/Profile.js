@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -8,9 +8,8 @@ import Typography from "@material-ui/core/Typography";
 
 import { Lock } from "@material-ui/icons";
 
-import { snackbarService } from "uno-material-ui";
-
-import { getUserProfile } from "../../services/UserService";
+import { getUserTweets } from "../../services/TweetService";
+import TweetList from "../../components/TweetList";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -74,31 +73,19 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "100px",
     fontSize: "15px",
   },
+  tweet: {
+    flexGrow: 1,
+    width: "100%",
+  },
 }));
 
-const Profile = () => {
+const Profile = (props) => {
   const classes = useStyles();
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    getUserProfile().then(
-      (response) => {
-        setUser(response.data);
-      },
-      (error) => {
-        const errorMessage =
-          (error.response &&
-            error.response.data &&
-            error.response.data.message) ||
-          error.message ||
-          error.toString();
-        snackbarService.showSnackbar(errorMessage, "error");
-      }
-    );
-  }, []);
 
   const avatarUrl =
-    user && user.profilePicUrl ? user.profilePicUrl : "/broken-image.jpg";
+    props.user && props.user.profilePicUrl
+      ? props.user.profilePicUrl
+      : "/broken-image.jpg";
 
   return (
     <Grid container>
@@ -133,34 +120,37 @@ const Profile = () => {
               className={classes.horizontalDiv}
             >
               <Typography className={classes.name} variant="h6" id="name">
-                {user && `${user.firstname} ${user.lastname}`}
+                {props.user && `${props.user.firstname} ${props.user.lastname}`}
               </Typography>
               <Lock className={classes.lock} />
             </div>
             <span>
               <Typography id="username">
-                <small>{user && `@${user.username}`}</small>
+                <small>{props.user && `@${props.user.username}`}</small>
               </Typography>
             </span>
           </div>
           <div style={{ marginBottom: "1rem" }}>
             <span>
               <Typography id="bio">
-                {user && user.bio ? user.bio : "Bio"}
+                {props.user && props.user.bio ? props.user.bio : "Bio"}
               </Typography>
             </span>
           </div>
           <div className={classes.followersDiv}>
             <Typography className={classes.followers}>
-              {user && `${user.followersCount} Followers`}
+              {props.user && `${props.user.followersCount} Followers`}
             </Typography>
             <div style={{ width: "2.5rem" }}></div>
             <Typography className={classes.followers}>
-              {user && `${user.followingCount} Following`}
+              {props.user && `${props.user.followingCount} Following`}
             </Typography>
           </div>
         </Grid>
       </Paper>
+      <div className={classes.tweet}>
+        <TweetList tweetApi={getUserTweets} selfTweets={true} />
+      </div>
     </Grid>
   );
 };

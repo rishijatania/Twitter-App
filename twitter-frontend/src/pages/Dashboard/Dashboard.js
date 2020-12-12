@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Switch, Route, Link } from "react-router-dom";
 
 import AppBar from "@material-ui/core/AppBar";
@@ -27,6 +27,9 @@ import Explore from "../Explore/Explore";
 import Profile from "../Profile/Profile";
 import EditProfile from "../Profile/EditProfile";
 import WhoToFollow from "../WhoToFollow/WhoToFollow";
+import { getUserProfile } from "../../services/UserService";
+
+import { snackbarService } from "uno-material-ui";
 
 const drawerWidth = 240;
 
@@ -134,11 +137,33 @@ function Dashboard(props) {
   const classes = useStyles();
   const theme = useTheme();
 
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [value, setValue] = React.useState("Home");
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [value, setValue] = useState("Home");
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    getUpdatedUserProfile();
+  }, []);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const getUpdatedUserProfile = () => {
+    getUserProfile().then(
+      (response) => {
+        setUser(response.data);
+      },
+      (error) => {
+        const errorMessage =
+          (error.response &&
+            error.response.data &&
+            error.response.data.message) ||
+          error.message ||
+          error.toString();
+        snackbarService.showSnackbar(errorMessage, "error");
+      }
+    );
   };
 
   const drawer = (
@@ -247,15 +272,23 @@ function Dashboard(props) {
         <Grid container spacing={1}>
           <Grid className={classes.content} item md={9}>
             <Switch>
-              <Route exact path="/u" component={Home} />
-              <Route path="/u/home" component={Home} />
+              <Route exact path="/u">
+                <Home user={user} />
+              </Route>
+              <Route path="/u/home">
+                <Home user={user} />
+              </Route>
               <Route path="/u/explore" component={Explore} />
-              <Route path="/u/profile" component={Profile} />
-              <Route path="/u/settings/profile" component={EditProfile} />
+              <Route path="/u/profile">
+                <Profile user={user} />
+              </Route>
+              <Route path="/u/settings/profile">
+                <EditProfile handleUserUpdate={getUpdatedUserProfile} />
+              </Route>
             </Switch>
           </Grid>
           <Grid item md={3}>
-            <WhoToFollow />
+            <WhoToFollow handleUserUpdate={getUpdatedUserProfile} />
           </Grid>
         </Grid>
       </main>
