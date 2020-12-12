@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: twitter-backend-config
+data:
+  DB_NAME: TwitterApp
+  BUCKET_NAME: com.twitter

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: twitter-tweet-config
+data:
+  DB_NAME: TwitterApp
+  BUCKET_NAME: com.twitter
+  BACKEND_SERVICE_URL: http://twitter-backend:8080
