@@ -15,7 +15,7 @@ import IconButton from "@material-ui/core/IconButton";
 import Badge from "@material-ui/core/Badge";
 import DeleteOutlineOutlinedIcon from "@material-ui/icons/DeleteOutlineOutlined";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
-import TweetService from "../services/TweetService";
+import { likeTweet, deleteTweet } from "../services/TweetService";
 import { snackbarService } from "uno-material-ui";
 
 const StyledBadge = withStyles((theme) => ({
@@ -59,7 +59,7 @@ const Tweet = (props) => {
       : "/broken-image.jpg";
 
   const handleLike = () => {
-    TweetService.likeTweet(props.tweet.id).then(
+    likeTweet(props.tweet.id).then(
       (response) => {
         props.onTweetChange();
       },
@@ -76,7 +76,7 @@ const Tweet = (props) => {
   };
 
   const handleDelete = () => {
-    TweetService.deleteTweet(props.tweet.id).then(
+    deleteTweet(props.tweet.id).then(
       (response) => {
         snackbarService.showSnackbar(response.message);
         props.onTweetChange();

@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import NewTweet from "../../components/NewTweet";
 import TweetList from "../../components/TweetList";
 
-import TweetService from "../../services/TweetService";
+import { getUserFeed } from "../../services/TweetService";
 import { snackbarService } from "uno-material-ui";
 
 const Home = (props) => {
   const [tweets, setTweets] = useState([]);
 
   const refreshTweetsList = () => {
-    TweetService.getUserFeed().then(
+    getUserFeed().then(
       (response) => {
         setTweets(response.data.tweets);
       },

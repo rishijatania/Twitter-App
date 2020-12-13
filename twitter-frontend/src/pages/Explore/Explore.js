@@ -6,7 +6,7 @@ import Grid from "@material-ui/core/Grid";
 import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import TweetService from "../../services/TweetService";
+import { searchTweets, searchTweetsByTag } from "../../services/TweetService";
 import TweetList from "../../components/TweetList";
 
 const useStyles = makeStyles((theme) => ({
@@ -46,10 +46,10 @@ const Explore = () => {
     if (!searchValue) {
       return snackbarService.showSnackbar("Enter something to search", "error");
     }
-    TweetService.searchTweets(searchValue).then((response) => {
+    searchTweets(searchValue).then((response) => {
       setTweetSearchResult(response.data.tweets);
     });
-    TweetService.searchTweetsByTag(searchValue).then((response) => {
+    searchTweetsByTag(searchValue).then((response) => {
       setTagSearchResult(response.data.tweets);
     });
   };

@@ -86,7 +86,7 @@ const deleteComment = async (tweetId, commentId) => {
   return response.data;
 };
 
-export default {
+export {
   createTweet,
   getUserTweets,
   getUserFeed,

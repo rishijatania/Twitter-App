@@ -8,7 +8,7 @@ import Typography from "@material-ui/core/Typography";
 
 import { Lock } from "@material-ui/icons";
 
-import TweetService from "../../services/TweetService";
+import { getUserTweets } from "../../services/TweetService";
 import TweetList from "../../components/TweetList";
 import { snackbarService } from "uno-material-ui";
 
@@ -86,7 +86,7 @@ const Profile = (props) => {
   const [tweets, setTweets] = useState([]);
 
   const refreshTweetsList = () => {
-    TweetService.getUserTweets().then(
+    getUserTweets().then(
       (response) => {
         setTweets(response.data.tweets);
       },
