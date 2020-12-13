@@ -6,6 +6,7 @@ rejson
 Timeloop
 slack_webhook
 pyjwt
+prometheus_flask_exporter
 # spacy
 # profanity-filter
 # numpy
