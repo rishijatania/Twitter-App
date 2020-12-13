@@ -102,7 +102,7 @@ const EditProfile = (props) => {
         setFirstName(response.data.firstname);
         setLastName(response.data.lastname);
         setBio(response.data.bio);
-        setAvatarUrl(response.data.profilePicUrl);
+        setAvatarUrl(response.data.profilePicUrl.replace("https", "http"));
       },
       (error) => {
         const errorMessage =

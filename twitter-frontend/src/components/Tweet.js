@@ -55,7 +55,7 @@ const Tweet = (props) => {
 
   const avatarUrl =
     props.tweet.user && props.tweet.user.profilePicUrl
-      ? props.tweet.user.profilePicUrl
+      ? props.tweet.user.profilePicUrl.replace("https", "http")
       : "/broken-image.jpg";
 
   const handleLike = () => {
