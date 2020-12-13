@@ -83,7 +83,7 @@ else
 fi
 
 read -p 'AWS AWS_SECRET_ACCESS_KEY: ' aws_secret_key
-rapid_api_aws_secret_keykey=$(printf "%s" "$aws_secret_key" | base64)
+aws_secret_key=$(printf "%s" "$aws_secret_key" | base64)
 
 if [[ $backend_sec_f != "" && $aws_secret_key != "" ]]; then
 	# Mac command specifics
