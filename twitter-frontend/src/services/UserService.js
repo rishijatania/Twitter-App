@@ -1,10 +1,12 @@
 import axios from "axios";
 import authHeader from "./AuthHeader";
 
-const API_URL = "http://127.0.0.1:8080/api/user/";
+// const API_URL = "http://127.0.0.1:8080/api/user/";
+// const MIDDLEWARE_URL = window._env_.REACT_APP_MIDDLEWARE_URL == undefined ? "http://localhost:5000/" : window._env_.REACT_APP_MIDDLEWARE_URL;
+const MIDDLEWARE_URL = "/api/user"
 
 const getUserProfile = () => {
-  return axios.get(API_URL + "profile", { headers: authHeader() });
+  return axios.get(MIDDLEWARE_URL + "/profile", { headers: authHeader() });
 };
 
 const updateUserProfile = async (
@@ -32,16 +34,16 @@ const updateUserProfile = async (
       Authorization: `Bearer ${accessToken}`,
     },
   };
-  const response = await axios.put(API_URL + "profile", formData, config);
+  const response = await axios.put(MIDDLEWARE_URL + "/profile", formData, config);
   return response.data;
 };
 
 const getFollowSuggestions = () => {
-  return axios.get(API_URL + "followSuggestions", { headers: authHeader() });
+  return axios.get(MIDDLEWARE_URL + "/followSuggestions", { headers: authHeader() });
 };
 
 const unFollowUser = async (userName) => {
-  const response = await axios.delete(API_URL + "/followers/" + userName, {
+  const response = await axios.delete(MIDDLEWARE_URL + "/followers/" + userName, {
     headers: authHeader(),
   });
   return response.data;
@@ -49,7 +51,7 @@ const unFollowUser = async (userName) => {
 
 const followUser = (username) => {
   return axios.post(
-    API_URL + "followers",
+    MIDDLEWARE_URL + "/followers",
     { username },
     { headers: authHeader() }
   );

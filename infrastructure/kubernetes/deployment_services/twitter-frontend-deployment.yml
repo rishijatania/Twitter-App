@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twitter-frontend
+  labels:
+    app: twitter-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: twitter-frontend
+  template:
+    metadata:
+      labels:
+        app: twitter-frontend
+    spec:
+      containers:
+        - name: twitter-frontend
+          image: rishijatania/twitter-frontend
+          imagePullPolicy: Always
+          # envFrom:      
+          #   - configMapRef:
+          #       name: twitter-frontend-config
+          ports:
+            - containerPort: 80

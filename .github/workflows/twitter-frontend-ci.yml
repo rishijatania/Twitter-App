@@ -5,7 +5,7 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - twitter-frontend/**
       - .github/workflows/**
@@ -21,27 +21,27 @@ jobs:
       matrix:
         node-version: [14.x]
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: Install Packages
-      run: npm install
-      working-directory: twitter-frontend      
-    - name: Build page
-      run: npm run build
-      working-directory: twitter-frontend
-    - name: Docker login
-      env:
-        DOCKER_USER: ${{secrets.DOCKER_USER}}
-        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-      run: |
-        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-    - name: Build Docker image
-      working-directory: twitter-frontend
-      run: |
-        docker build . --file Dockerfile --tag ${{secrets.DOCKER_USER}}/twitter-frontend
-    - name: Docker push
-      run: |
-        docker push ${{secrets.DOCKER_USER}}/twitter-frontend
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install Packages
+        run: npm install
+        working-directory: twitter-frontend
+      - name: Build page
+        run: npm run build
+        working-directory: twitter-frontend
+      - name: Docker login
+        env:
+          DOCKER_USER: ${{secrets.DOCKER_USER}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+      - name: Build Docker image
+        working-directory: twitter-frontend
+        run: |
+          docker build . --file Dockerfile --tag ${{secrets.DOCKER_USER}}/twitter-frontend
+      - name: Docker push
+        run: |
+          docker push ${{secrets.DOCKER_USER}}/twitter-frontend

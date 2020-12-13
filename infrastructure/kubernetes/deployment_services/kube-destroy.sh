@@ -11,4 +11,6 @@ kubectl delete -f service-twitter-queue-lb.yml &&
 kubectl delete -f twitter-middleware-secrets.yml &&
 kubectl delete -f twitter-middleware-config.yml &&
 kubectl delete -f twitter-middleware-deployment.yml &&
-kubectl delete -f service-twitter-middleware-lb.yml
+kubectl delete -f service-twitter-middleware-lb.yml &&
+kubectl delete -f twitter-frontend-deployment.yml &&
+kubectl delete -f service-twitter-frontend-lb.yml
