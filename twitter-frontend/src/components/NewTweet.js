@@ -134,7 +134,7 @@ const NewTweet = (props) => {
 
   const avatarUrl =
     props.user && props.user.profilePicUrl
-      ? props.user.profilePicUrl
+      ? props.user.profilePicUrl.replace("https", "http")
       : "/broken-image.jpg";
 
   return (

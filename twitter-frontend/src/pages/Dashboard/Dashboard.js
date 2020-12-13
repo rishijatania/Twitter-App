@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Switch, Route, Link } from "react-router-dom";
+import { Switch, Route, Link, useHistory } from "react-router-dom";
 
 import AppBar from "@material-ui/core/AppBar";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -8,6 +8,7 @@ import Drawer from "@material-ui/core/Drawer";
 import Hidden from "@material-ui/core/Hidden";
 import IconButton from "@material-ui/core/IconButton";
 import List from "@material-ui/core/List";
+import Button from "@material-ui/core/Button";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -29,6 +30,7 @@ import EditProfile from "../Profile/EditProfile";
 import WhoToFollow from "../WhoToFollow/WhoToFollow";
 import { getUserProfile } from "../../services/UserService";
 import TweetDetails from "../TweetDetails/TweetDetails";
+import { logout } from "../../services/AuthService";
 
 import { snackbarService } from "uno-material-ui";
 
@@ -123,6 +125,20 @@ const useStyles = makeStyles((theme) => ({
     height: "1.75rem",
     position: "relative",
   },
+  btn: {
+    backgroundColor: "rgba(29,161,242,1.00);",
+    borderRadius: "1.5rem",
+    color: "white",
+    textTransform: "capitalize",
+    "&:hover": {
+      backgroundColor: "rgba(29,161,242,1.00);",
+    },
+  },
+  center: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 }));
 
 const HashTag = (props) => {
@@ -137,6 +153,7 @@ function Dashboard(props) {
   const { window } = props;
   const classes = useStyles();
   const theme = useTheme();
+  const history = useHistory();
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [value, setValue] = useState("Home");
@@ -165,6 +182,11 @@ function Dashboard(props) {
         snackbarService.showSnackbar(errorMessage, "error");
       }
     );
+  };
+
+  const logoutUser = () => {
+    logout();
+    history.push("/");
   };
 
   const drawer = (
@@ -211,6 +233,11 @@ function Dashboard(props) {
           <ListItemText primary="Profile" />
         </ListItem>
       </List>
+      <div className={classes.center}>
+        <Button variant="extended" className={classes.btn} onClick={logoutUser}>
+          Logout
+        </Button>
+      </div>
     </div>
   );
 

@@ -94,7 +94,7 @@ const WhoToFollow = (props) => {
                   <Avatar
                     src={
                       user.profilePicUrl
-                        ? user.profilePicUrl
+                        ? user.profilePicUrl.replace("https", "http")
                         : "/broken-image.jpg"
                     }
                   />

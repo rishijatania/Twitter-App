@@ -159,7 +159,7 @@ const TweetDetails = ({ match, location }) => {
 
   const avatarUrl =
     tweetDetails && tweetDetails.user && tweetDetails.user.profilePicUrl
-      ? tweetDetails.user.profilePicUrl
+      ? tweetDetails.user.profilePicUrl.replace("https", "http")
       : "/broken-image.jpg";
 
   useEffect(() => {
@@ -275,7 +275,10 @@ const TweetDetails = ({ match, location }) => {
                       <Avatar
                         src={
                           tweetComment.user.profilePicUrl
-                            ? tweetComment.user.profilePicUrl
+                            ? tweetComment.user.profilePicUrl.replace(
+                                "https",
+                                "http"
+                              )
                             : "/broken-image.jpg"
                         }
                       />
