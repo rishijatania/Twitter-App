@@ -40,6 +40,13 @@ const getFollowSuggestions = () => {
   return axios.get(API_URL + "followSuggestions", { headers: authHeader() });
 };
 
+const unFollowUser = async (userName) => {
+  const response = await axios.delete(API_URL + "/followers/" + userName, {
+    headers: authHeader(),
+  });
+  return response.data;
+};
+
 const followUser = (username) => {
   return axios.post(
     API_URL + "followers",
@@ -48,4 +55,10 @@ const followUser = (username) => {
   );
 };
 
-export { getUserProfile, updateUserProfile, getFollowSuggestions, followUser };
+export {
+  getUserProfile,
+  updateUserProfile,
+  getFollowSuggestions,
+  followUser,
+  unFollowUser,
+};

@@ -84,7 +84,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const EditProfile = () => {
+const EditProfile = (props) => {
   const classes = useStyles();
   const history = useHistory();
 
@@ -130,6 +130,7 @@ const EditProfile = () => {
       (response) => {
         setLoading(false);
         snackbarService.showSnackbar("Profile updated successfully!");
+        props.handleUserUpdate();
         history.push("/u/profile");
       },
       (error) => {
