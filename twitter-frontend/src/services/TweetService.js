@@ -49,4 +49,52 @@ const deleteTweet = async (tweetId) => {
   return response.data;
 };
 
-export { createTweet, getUserTweets, getUserFeed, likeTweet, deleteTweet };
+const searchTweets = (searchTerm) => {
+  return axios.get(API_URL + "search?text=" + searchTerm, {
+    headers: authHeader(),
+  });
+};
+
+const searchTweetsByTag = (searchTerm) => {
+  return axios.get(API_URL + "searchTag?tag=%23" + searchTerm, {
+    headers: authHeader(),
+  });
+};
+
+const getTweetById = (tweetId) => {
+  return axios.get(API_URL + tweetId, { headers: authHeader() });
+};
+
+const addComment = async (tweetId, comment) => {
+  const response = await axios.post(
+    API_URL + tweetId + "/comment",
+    {
+      text: comment,
+    },
+    { headers: authHeader() }
+  );
+  return response.data;
+};
+
+const deleteComment = async (tweetId, commentId) => {
+  const response = await axios.delete(
+    API_URL + tweetId + "/comment/" + commentId,
+    {
+      headers: authHeader(),
+    }
+  );
+  return response.data;
+};
+
+export default {
+  createTweet,
+  getUserTweets,
+  getUserFeed,
+  likeTweet,
+  deleteTweet,
+  searchTweets,
+  searchTweetsByTag,
+  getTweetById,
+  addComment,
+  deleteComment,
+};

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -8,8 +8,9 @@ import Typography from "@material-ui/core/Typography";
 
 import { Lock } from "@material-ui/icons";
 
-import { getUserTweets } from "../../services/TweetService";
+import TweetService from "../../services/TweetService";
 import TweetList from "../../components/TweetList";
+import { snackbarService } from "uno-material-ui";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -82,6 +83,29 @@ const useStyles = makeStyles((theme) => ({
 const Profile = (props) => {
   const classes = useStyles();
 
+  const [tweets, setTweets] = useState([]);
+
+  const refreshTweetsList = () => {
+    TweetService.getUserTweets().then(
+      (response) => {
+        setTweets(response.data.tweets);
+      },
+      (error) => {
+        const errorMessage =
+          (error.response &&
+            error.response.data &&
+            error.response.data.message) ||
+          error.message ||
+          error.toString();
+        snackbarService.showSnackbar(errorMessage, "error");
+      }
+    );
+  };
+
+  useEffect(() => {
+    refreshTweetsList();
+  }, []);
+
   const avatarUrl =
     props.user && props.user.profilePicUrl
       ? props.user.profilePicUrl
@@ -149,7 +173,11 @@ const Profile = (props) => {
         </Grid>
       </Paper>
       <div className={classes.tweet}>
-        <TweetList tweetApi={getUserTweets} selfTweets={true} />
+        <TweetList
+          tweetData={tweets}
+          onTweetChange={refreshTweetsList}
+          selfTweets={true}
+        />
       </div>
     </Grid>
   );

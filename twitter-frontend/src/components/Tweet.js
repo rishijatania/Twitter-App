@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
@@ -14,7 +15,7 @@ import IconButton from "@material-ui/core/IconButton";
 import Badge from "@material-ui/core/Badge";
 import DeleteOutlineOutlinedIcon from "@material-ui/icons/DeleteOutlineOutlined";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
-import { likeTweet, deleteTweet } from "../services/TweetService";
+import TweetService from "../services/TweetService";
 import { snackbarService } from "uno-material-ui";
 
 const StyledBadge = withStyles((theme) => ({
@@ -44,6 +45,9 @@ const useStyles = makeStyles((theme) => ({
     width: "500px",
     height: "285px",
   },
+  listPrimaryText: {
+    fontWeight: "bold",
+  },
 }));
 
 const Tweet = (props) => {
@@ -55,7 +59,7 @@ const Tweet = (props) => {
       : "/broken-image.jpg";
 
   const handleLike = () => {
-    likeTweet(props.tweet.id).then(
+    TweetService.likeTweet(props.tweet.id).then(
       (response) => {
         props.onTweetChange();
       },
@@ -72,7 +76,7 @@ const Tweet = (props) => {
   };
 
   const handleDelete = () => {
-    deleteTweet(props.tweet.id).then(
+    TweetService.deleteTweet(props.tweet.id).then(
       (response) => {
         snackbarService.showSnackbar(response.message);
         props.onTweetChange();
@@ -100,7 +104,8 @@ const Tweet = (props) => {
               className={classes.avatar}
             ></Avatar>
           }
-          title={`${props.tweet.user.firstname} ${props.tweet.user.lastname} @${props.tweet.user.username}`}
+          title={`${props.tweet.user.firstname} ${props.tweet.user.lastname} (@${props.tweet.user.username})`}
+          classes={{ title: classes.listPrimaryText }}
         />
       </div>
       <CardContent className={classes.typography}>
@@ -116,8 +121,15 @@ const Tweet = (props) => {
         />
       )}
       <CardActions className={classes.cardActions}>
-        <IconButton aria-label="Comment">
-          <StyledBadge className="chat">
+        <IconButton
+          aria-label="Comment"
+          component={Link}
+          to={`/u/tweet/${props.tweet.id}`}
+        >
+          <StyledBadge
+            className="chat"
+            badgeContent={props.tweet.commentsCount}
+          >
             <ChatBubbleOutlineOutlined />
           </StyledBadge>
         </IconButton>

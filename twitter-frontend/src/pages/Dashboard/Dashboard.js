@@ -28,6 +28,7 @@ import Profile from "../Profile/Profile";
 import EditProfile from "../Profile/EditProfile";
 import WhoToFollow from "../WhoToFollow/WhoToFollow";
 import { getUserProfile } from "../../services/UserService";
+import TweetDetails from "../TweetDetails/TweetDetails";
 
 import { snackbarService } from "uno-material-ui";
 
@@ -285,11 +286,14 @@ function Dashboard(props) {
               <Route path="/u/settings/profile">
                 <EditProfile handleUserUpdate={getUpdatedUserProfile} />
               </Route>
+              <Route path="/u/tweet/:tweetId" component={TweetDetails} />
             </Switch>
           </Grid>
-          <Grid item md={3}>
-            <WhoToFollow handleUserUpdate={getUpdatedUserProfile} />
-          </Grid>
+          <Hidden xsDown>
+            <Grid item md={3}>
+              <WhoToFollow handleUserUpdate={getUpdatedUserProfile} />
+            </Grid>
+          </Hidden>
         </Grid>
       </main>
     </div>
