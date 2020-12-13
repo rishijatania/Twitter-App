@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.twitter.twitterbackend.metrics.MetricsManager;
+import com.twitter.twitterbackend.metrics.SampleStore;
 import com.twitter.twitterbackend.models.User;
 import com.twitter.twitterbackend.payload.request.FollowRequest;
 import com.twitter.twitterbackend.payload.request.UserProfileRequest;
@@ -48,6 +50,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.micrometer.core.instrument.Clock;
+import io.micrometer.core.instrument.Timer;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/user")
@@ -71,6 +76,12 @@ public class ProfileController {
 	@Autowired
 	SlackReportService slackReportService;
 
+	@Autowired
+	private MetricsManager metricsManager;
+
+	@Autowired
+	private SampleStore sampleStore;
+
 	@GetMapping("/verify")
 	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<?> userAccessVerify() {
@@ -80,7 +91,9 @@ public class ProfileController {
 	@GetMapping("/profile")
 	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<?> viewProfile() {
+		sampleStore.set(Timer.start(Clock.SYSTEM));
 		User user = userServiceImpl.getCurrentUserFromSession();
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/user/profile", "method", "get");
 		return ResponseEntity.ok(modelMapper.map(user, UserResponse.class));
 	}
 
@@ -97,6 +110,7 @@ public class ProfileController {
 					new ErrorMessageResponse(DateToString(), "File not of type Image!", 400, "", "/profile"),
 					HttpStatus.BAD_REQUEST);
 		}
+		sampleStore.set(Timer.start(Clock.SYSTEM));
 		User user = userServiceImpl.getCurrentUserFromSession();
 		ObjectMapper mapper = new ObjectMapper();
 		try {
@@ -117,7 +131,7 @@ public class ProfileController {
 					new ErrorMessageResponse(DateToString(), "User update failed!", 500, "", "/profile"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/user/profile", "method", "put");
 		return ResponseEntity.ok(modelMapper.map(user, UserResponse.class));
 	}
 
@@ -128,6 +142,7 @@ public class ProfileController {
 					new ErrorMessageResponse(DateToString(), "Please enter search text!", 400, "", "/search"),
 					HttpStatus.BAD_REQUEST);
 		}
+		sampleStore.set(Timer.start(Clock.SYSTEM));
 		User user = userServiceImpl.getCurrentUserFromSession();
 		SearchUserResponse result = new SearchUserResponse();
 		try {
@@ -143,12 +158,14 @@ public class ProfileController {
 					new ErrorMessageResponse(DateToString(), "User Search failed!", 500, "", "/search"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/user/search", "method", "get");
 		return ResponseEntity.ok(result);
 	}
 
 	@PostMapping("/followers")
 	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<?> addFollowers(@RequestBody FollowRequest follow) {
+		sampleStore.set(Timer.start(Clock.SYSTEM));
 		User user = userServiceImpl.getCurrentUserFromSession();
 
 		if (user.getUsername().equals(follow.getUsername())) {
@@ -180,12 +197,14 @@ public class ProfileController {
 					new ErrorMessageResponse(DateToString(), "User Follow failed!", 500, "", "/followers"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/user/followers", "method", "post");
 		return ResponseEntity.ok(new MessageResponse("User Followed!"));
 	}
 
 	@DeleteMapping("/followers/{username}")
 	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<?> removeFollowers(@PathVariable(value = "username") String username) {
+		sampleStore.set(Timer.start(Clock.SYSTEM));
 		User user = userServiceImpl.getCurrentUserFromSession();
 
 		if (user.getUsername().equals(username)) {
@@ -217,12 +236,14 @@ public class ProfileController {
 					new ErrorMessageResponse(DateToString(), "User Unfollow failed!", 500, "", "/followers"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/user/followers", "method", "delete");
 		return ResponseEntity.ok(new MessageResponse("User unFollowed!"));
 	}
 
 	@GetMapping("/followSuggestions")
 	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<?> getFollowSuggestions() {
+		sampleStore.set(Timer.start(Clock.SYSTEM));
 		User user = userServiceImpl.getCurrentUserFromSession();
 		FollowUserSuggestion result = new FollowUserSuggestion();
 		try {
@@ -240,6 +261,7 @@ public class ProfileController {
 			return new ResponseEntity<>(new ErrorMessageResponse(DateToString(), "User followsuggestions failed!", 500,
 					"", "/followsuggestions"), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/user/search", "method", "get");
 		return ResponseEntity.ok(result);
 	}
 

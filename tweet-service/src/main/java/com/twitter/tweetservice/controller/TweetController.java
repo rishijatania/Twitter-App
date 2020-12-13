@@ -11,6 +11,8 @@ import java.util.Set;
 import javax.validation.Valid;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.twitter.tweetservice.metrics.MetricsManager;
+import com.twitter.tweetservice.metrics.SampleStore;
 import com.twitter.tweetservice.models.Comment;
 import com.twitter.tweetservice.models.File;
 import com.twitter.tweetservice.models.Like;
@@ -47,6 +49,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.micrometer.core.instrument.Clock;
+import io.micrometer.core.instrument.Timer;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/tweet")
@@ -73,6 +78,12 @@ public class TweetController {
 	@Autowired
 	SlackReportService slackReportService;
 
+	@Autowired
+	private MetricsManager metricsManager;
+
+	@Autowired
+	private SampleStore sampleStore;
+
 	@GetMapping(value = "/testHealth")
 	public ResponseEntity<?> userAccess(@RequestAttribute User user) {
 		return ResponseEntity.ok(new MessageResponse("Tweet Service Up and running."));
@@ -91,6 +102,7 @@ public class TweetController {
 					new ErrorMessageResponse(DateToString(), "File not of type Image!", 400, "", "/tweet"),
 					HttpStatus.BAD_REQUEST);
 		}
+		sampleStore.set(Timer.start(Clock.SYSTEM));
 		ObjectMapper mapper = new ObjectMapper();
 		Tweet tweet = new Tweet();
 		try {
@@ -127,6 +139,7 @@ public class TweetController {
 					new ErrorMessageResponse(DateToString(), "Tweet Create failed!", 500, "", "/tweet"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/tweet", "method", "post");
 		return ResponseEntity.ok(modelMapper.map(tweet, TweetResponse.class));
 	}
 
@@ -144,6 +157,7 @@ public class TweetController {
 					new ErrorMessageResponse(DateToString(), "User Not Authorised to Update Tweet", 404, "", "/tweet"),
 					HttpStatus.UNAUTHORIZED);
 		}
+		sampleStore.set(Timer.start(Clock.SYSTEM));
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			// Create Tweet
@@ -156,12 +170,14 @@ public class TweetController {
 					new ErrorMessageResponse(DateToString(), "Tweet Update failed!", 500, "", "/tweet"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/tweet", "method", "put");
 		return ResponseEntity.ok(modelMapper.map(t.get(), TweetResponse.class));
 	}
 
 	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<?> deleteTweet(@RequestAttribute User user, @PathVariable String id) {
 		try {
+			sampleStore.set(Timer.start(Clock.SYSTEM));
 			Optional<Tweet> t = tweetRepository.findById(id);
 			if (!t.isPresent()) {
 				return new ResponseEntity<>(
@@ -184,12 +200,14 @@ public class TweetController {
 					new ErrorMessageResponse(DateToString(), "Tweet Delete failed!", 500, "", "/tweet"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/tweet", "method", "delete");
 		return ResponseEntity.ok(new MessageResponse("Tweet Deleted"));
 	}
 
 	@PostMapping(value = "/{id}/like")
 	public ResponseEntity<?> likeTweet(@RequestAttribute User user, @PathVariable String id) {
 		try {
+			sampleStore.set(Timer.start(Clock.SYSTEM));
 			Optional<Tweet> t = tweetRepository.findById(id);
 			if (!t.isPresent()) {
 				return new ResponseEntity<>(
@@ -208,6 +226,7 @@ public class TweetController {
 				t.get().getLikes().add(li);
 			}
 			tweetRepository.save(t.get());
+			metricsManager.trackTimeMetrics("http.requests", "uri", "/api/tweet/like", "method", "post");
 			return ResponseEntity.ok(modelMapper.map(t.get(), TweetResponse.class));
 		} catch (Exception e) {
 			slackReportService.report(e.getMessage(), user.getUsername(), "/like");
@@ -224,6 +243,7 @@ public class TweetController {
 					new ErrorMessageResponse(DateToString(), "Please enter search text!", 400, "", "/search"),
 					HttpStatus.BAD_REQUEST);
 		}
+		sampleStore.set(Timer.start(Clock.SYSTEM));
 		SearchTweetResponse result = new SearchTweetResponse();
 		try {
 			List<Tweet> tweets = tweetActionServiceImpl.findTweetByText(text);
@@ -236,6 +256,7 @@ public class TweetController {
 					new ErrorMessageResponse(DateToString(), "Tweet Search failed!", 500, "", "/search"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/tweet/search", "method", "get");
 		return ResponseEntity.ok(result);
 	}
 
@@ -246,6 +267,7 @@ public class TweetController {
 					new ErrorMessageResponse(DateToString(), "Please enter search tag!", 400, "", "/searchTag"),
 					HttpStatus.BAD_REQUEST);
 		}
+		sampleStore.set(Timer.start(Clock.SYSTEM));
 		SearchTweetResponse result = new SearchTweetResponse();
 		try {
 			Optional<Tag> tagResponse = tagRepository.findByTag(tag);
@@ -264,6 +286,7 @@ public class TweetController {
 					new ErrorMessageResponse(DateToString(), "Tweet Tag Search failed!", 500, "", "/searchTag"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/tweet/searchTag", "method", "get");
 		return ResponseEntity.ok(result);
 	}
 
@@ -274,12 +297,14 @@ public class TweetController {
 					new ErrorMessageResponse(DateToString(), "Please enter search id!", 400, "", "/tweet/{id}"),
 					HttpStatus.BAD_REQUEST);
 		}
+		sampleStore.set(Timer.start(Clock.SYSTEM));
 		Optional<Tweet> tweet = tweetActionServiceImpl.findTweetById(id);
 		if (!tweet.isPresent()) {
 			return new ResponseEntity<>(
 					new ErrorMessageResponse(DateToString(), "Tweet Not found!", 404, "", "/tweet/{id}"),
 					HttpStatus.NOT_FOUND);
 		}
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/tweet", "method", "get");
 		return ResponseEntity.ok(modelMapper.map(tweet.get(), TweetResponse.class));
 	}
 
@@ -291,6 +316,7 @@ public class TweetController {
 					new ErrorMessageResponse(DateToString(), "Tweet Not found!", 404, "", "/tweet/{id}"),
 					HttpStatus.NOT_FOUND);
 		}
+		sampleStore.set(Timer.start(Clock.SYSTEM));
 		SearchTweetResponse result = new SearchTweetResponse();
 		try {
 			List<Tweet> tweets = tweetList.get();
@@ -303,6 +329,7 @@ public class TweetController {
 					new ErrorMessageResponse(DateToString(), "Tweet Search failed!", 500, "", "/search"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/tweet", "method", "get");
 		return ResponseEntity.ok(result);
 	}
 
@@ -311,6 +338,7 @@ public class TweetController {
 			@RequestBody @Valid CommentRequest commentDTO) {
 		Optional<Tweet> tweet;
 		try {
+			sampleStore.set(Timer.start(Clock.SYSTEM));
 			tweet = tweetActionServiceImpl.findTweetById(id);
 			if (!tweet.isPresent()) {
 				return new ResponseEntity<>(
@@ -331,6 +359,7 @@ public class TweetController {
 					new ErrorMessageResponse(DateToString(), "Comment Create failed!", 500, "", "/comment"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/tweet/comment", "method", "post");
 		return ResponseEntity.ok(modelMapper.map(tweet.get(), TweetResponse.class));
 	}
 
@@ -339,6 +368,7 @@ public class TweetController {
 			@PathVariable String cid) {
 
 		try {
+			sampleStore.set(Timer.start(Clock.SYSTEM));
 			Optional<Tweet> t = tweetRepository.findById(id);
 			if (!t.isPresent()) {
 				return new ResponseEntity<>(
@@ -363,6 +393,7 @@ public class TweetController {
 					new ErrorMessageResponse(DateToString(), "Comment Delete failed!", 500, "", "/Comment"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/tweet/comment", "method", "delete");
 		return ResponseEntity.ok(new MessageResponse("Comment Deleted"));
 	}
 
@@ -370,6 +401,7 @@ public class TweetController {
 	public ResponseEntity<?> getTweetsFeedForUser(@RequestAttribute User user) {
 		List<Tweet> tweetList = tweetActionServiceImpl.loadTweetFeedForUser(user);
 		SearchTweetResponse result = new SearchTweetResponse();
+		sampleStore.set(Timer.start(Clock.SYSTEM));
 		try {
 			tweetList.forEach(tweet -> {
 				result.getTweets().add(modelMapper.map(tweet, TweetResponse.class));
@@ -380,6 +412,7 @@ public class TweetController {
 					new ErrorMessageResponse(DateToString(), "Tweet Feed failed!", 400, "", "/feed"),
 					HttpStatus.BAD_REQUEST);
 		}
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/tweet/feed", "method", "get");
 		return ResponseEntity.ok(result);
 	}
 

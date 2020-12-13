@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import com.twitter.twitterbackend.metrics.MetricsManager;
+import com.twitter.twitterbackend.metrics.SampleStore;
 import com.twitter.twitterbackend.models.ERole;
 import com.twitter.twitterbackend.models.Role;
 import com.twitter.twitterbackend.models.User;
@@ -37,6 +39,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.micrometer.core.instrument.Clock;
+import io.micrometer.core.instrument.Timer;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
@@ -56,9 +61,15 @@ public class AuthController {
 	@Autowired
 	JwtUtils jwtUtils;
 
+	@Autowired
+	private MetricsManager metricsManager;
+
+	@Autowired
+	private SampleStore sampleStore;
+
 	@PostMapping("/signin")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-
+		sampleStore.set(Timer.start(Clock.SYSTEM));
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
@@ -68,7 +79,7 @@ public class AuthController {
 		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 		List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
 				.collect(Collectors.toList());
-
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/auth/signin", "method", "post");
 		return ResponseEntity.ok(
 				new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
 	}
@@ -76,6 +87,7 @@ public class AuthController {
 	@PostMapping("/signup")
 	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 		Date date = new Date();
+		sampleStore.set(Timer.start(Clock.SYSTEM));
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
 		String dateStr = dateFormat.format(date);
 		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
@@ -124,7 +136,7 @@ public class AuthController {
 
 		user.setRoles(roles);
 		userRepository.save(user);
-
+		metricsManager.trackTimeMetrics("http.requests", "uri", "/api/auth/signup", "method", "post");
 		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 	}
 

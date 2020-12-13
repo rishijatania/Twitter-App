@@ -27,6 +27,7 @@ public class WebConfig extends WebSecurityConfigurerAdapter{
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().exceptionHandling().and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+				.authorizeRequests().antMatchers("/actuator/**").permitAll().and()
 				.authorizeRequests().antMatchers("/api/auth/**").permitAll().and()
 				.authorizeRequests().antMatchers("/api/tweet**").permitAll();
 
