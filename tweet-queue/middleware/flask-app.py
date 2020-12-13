@@ -10,6 +10,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 from slack_webhook import Slack
 import jwt
+from prometheus_flask_exporter import PrometheusMetrics
 # from profanity_check import predict, predict_prob
 # import spacy
 # from profanity_filter import ProfanityFilter
@@ -19,6 +20,7 @@ app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 app.config['CORS_HEADERS'] = 'Content-Type'
 CORS(app)
+PrometheusMetrics(app)
 # nlp = spacy.load('en')
 # pf = ProfanityFilter(nlps={'en': nlp})
 
