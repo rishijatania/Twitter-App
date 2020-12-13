@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: twitter-backend-config
 data:
-  DB_NAME: TwitterApp
-  BUCKET_NAME: com.twitter
+  DB_NAME: {{ MongoDB.DB.Name }}
+  BUCKET_NAME: {{ AWS.Bucket.Name }}
