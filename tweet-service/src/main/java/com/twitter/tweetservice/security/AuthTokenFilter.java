@@ -32,7 +32,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		try {
+			logger.info("inside token filter");
+			logger.info(" Request URL " + request.getRequestURI());
+			logger.info(" Request URL " + request.getHeader("HOST"));
 			if (request.getRequestURI() !=null && request.getRequestURI().contains("/actuator")) {
+				logger.info("inside if for actuator");
 				filterChain.doFilter(request, response);
 			}
 			RestTemplate restTemplate = new RestTemplate();
