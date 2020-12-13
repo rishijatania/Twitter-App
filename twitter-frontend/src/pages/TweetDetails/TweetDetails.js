@@ -18,7 +18,13 @@ import IconButton from "@material-ui/core/IconButton";
 import Badge from "@material-ui/core/Badge";
 import DeleteOutlineOutlinedIcon from "@material-ui/icons/DeleteOutlineOutlined";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
-import TweetService from "../../services/TweetService";
+import {
+  likeTweet,
+  deleteTweet,
+  deleteComment,
+  getTweetById,
+  addComment,
+} from "../../services/TweetService";
 import { snackbarService } from "uno-material-ui";
 import { Paper, Button, TextareaAutosize } from "@material-ui/core";
 
@@ -99,7 +105,7 @@ const TweetDetails = ({ match, location }) => {
   const history = useHistory();
 
   const handleLike = () => {
-    TweetService.likeTweet(tweetDetails.id).then(
+    likeTweet(tweetDetails.id).then(
       (response) => {
         window.location.reload(false);
       },
@@ -116,7 +122,7 @@ const TweetDetails = ({ match, location }) => {
   };
 
   const handleDelete = () => {
-    TweetService.deleteTweet(tweetDetails.id).then(
+    deleteTweet(tweetDetails.id).then(
       (response) => {
         snackbarService.showSnackbar("Tweet has been deleted");
         history.push("/u/");
@@ -134,7 +140,7 @@ const TweetDetails = ({ match, location }) => {
   };
 
   const handleDeleteComment = (commentId) => {
-    TweetService.deleteComment(tweetDetails.id, commentId).then(
+    deleteComment(tweetDetails.id, commentId).then(
       (response) => {
         snackbarService.showSnackbar("Comment has been deleted");
         history.push("/u/");
@@ -157,7 +163,7 @@ const TweetDetails = ({ match, location }) => {
       : "/broken-image.jpg";
 
   useEffect(() => {
-    TweetService.getTweetById(match.params.tweetId).then((response) => {
+    getTweetById(match.params.tweetId).then((response) => {
       setTweetDetails(response.data);
     });
   }, [match.params.tweetId]);
@@ -168,7 +174,7 @@ const TweetDetails = ({ match, location }) => {
       return snackbarService.showSnackbar("Reply something!", "error");
     }
     setLoading(true);
-    TweetService.addComment(tweetDetails.id, comment).then(
+    addComment(tweetDetails.id, comment).then(
       (response) => {
         snackbarService.showSnackbar("Comment added to the tweet!");
         setLoading(false);

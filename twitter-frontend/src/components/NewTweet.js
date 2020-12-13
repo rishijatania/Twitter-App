@@ -10,7 +10,7 @@ import { makeStyles } from "@material-ui/core/styles";
 
 import { Photo } from "@material-ui/icons";
 
-import TweetService from "../services/TweetService";
+import { createTweet } from "../services/TweetService";
 import { snackbarService } from "uno-material-ui";
 
 const useStyles = makeStyles((theme) => ({
@@ -113,7 +113,7 @@ const NewTweet = (props) => {
 
     const tags = tweet.split(" ").filter((str) => str.startsWith("#"));
 
-    TweetService.createTweet(tweet, tags, hasTweetImage, tweetImage).then(
+    createTweet(tweet, tags, hasTweetImage, tweetImage).then(
       (response) => {
         setLoading(false);
         snackbarService.showSnackbar("Tweet posted successfully!");
