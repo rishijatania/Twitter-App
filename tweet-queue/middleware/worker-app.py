@@ -24,11 +24,13 @@ rj = Client(host=REDIS_HOST, port=6379, decode_responses=True)
 tweetRequest = {'tweetRequest': []}
 profileRequest = {'profileRequest': []}
 
-if rj.jsonget('user', Path.rootPath()) == None:
-    rj.jsonset('user', Path.rootPath(), profileRequest)
 
-if rj.jsonget('tweet', Path.rootPath()) == None:
-    rj.jsonset('tweet', Path.rootPath(), tweetRequest)
+def checkifObjectExist():
+    if rj.jsonget('user', Path.rootPath()) == None:
+        rj.jsonset('user', Path.rootPath(), profileRequest)
+
+    if rj.jsonget('tweet', Path.rootPath()) == None:
+        rj.jsonset('tweet', Path.rootPath(), tweetRequest)
 
 
 def profileAction(requestPath, method, headers, filename, userform):
@@ -99,6 +101,7 @@ def commentAction(requestPath, method, headers, body):
 @tl.job(interval=timedelta(seconds=20))
 def profileService():
     # get contents
+    checkifObjectExist()
     for obj in rj.jsonget('user', Path('.profileRequest')):
         print(obj)
         rj.jsonarrpop('user', Path('.profileRequest'))
@@ -110,6 +113,7 @@ def profileService():
 @tl.job(interval=timedelta(seconds=40))
 def tweetService():
     # get contents
+    checkifObjectExist()
     for obj in rj.jsonget('tweet', Path('.tweetRequest')):
         print(obj)
         rj.jsonarrpop('tweet', Path('.tweetRequest'))
