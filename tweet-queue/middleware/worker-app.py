@@ -98,7 +98,7 @@ def commentAction(requestPath, method, headers, body):
 # every 100 seconds, print groups
 
 
-@tl.job(interval=timedelta(seconds=20))
+@tl.job(interval=timedelta(seconds=10))
 def profileService():
     # get contents
     checkifObjectExist()
@@ -110,7 +110,7 @@ def profileService():
         print(res.text.encode('utf8'))
 
 
-@tl.job(interval=timedelta(seconds=40))
+@tl.job(interval=timedelta(seconds=20))
 def tweetService():
     # get contents
     checkifObjectExist()
