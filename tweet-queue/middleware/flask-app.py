@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, Response
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import requests
 import os
 import json
@@ -17,6 +17,7 @@ import jwt
 
 app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+app.config['CORS_HEADERS'] = 'Content-Type'
 CORS(app)
 # nlp = spacy.load('en')
 # pf = ProfanityFilter(nlps={'en': nlp})
@@ -109,6 +110,7 @@ def allowed_file(filename):
 
 
 @app.route('/api/testHealth')
+@cross_origin()
 def healthcheck():
     return jsonify(
         statusCode="200",
@@ -117,6 +119,7 @@ def healthcheck():
 
 
 @app.route('/api/user/profile', methods=['PUT'])
+@cross_origin()
 def profile():
 
     if 'profilePic' in request.files and not allowed_file(request.files['profilePic'].filename):
@@ -159,6 +162,7 @@ def profile():
 @app.route("/api/user/search", methods=['GET'])
 @app.route("/api/user/followers", methods=['POST'])
 @app.route("/api/user/followSuggestions", methods=['GET'])
+@cross_origin()
 def user_service(id=None):
     return _proxy_user_service()
 
@@ -171,6 +175,7 @@ def user_service(id=None):
 @app.route("/api/tweet", methods=['GET'])
 @app.route("/api/tweet/feed", methods=['GET'])
 @app.route("/api/tweet/<id>/like", methods=['POST'])
+@cross_origin()
 def tweet_service(id=None):
     return _proxy_tweet_service()
 
@@ -186,6 +191,7 @@ def check_profanity(text):
 
 @app.route('/api/tweet/<id>/comment', methods=['POST'])
 @app.route('/api/tweet/<id>/comment/<cid>', methods=['DELETE'])
+@cross_origin()
 def comment(id=None, cid=None):
 
     if request.method == 'POST' and not request.json and 'text' not in request.json and len(request.json['text']) == 0:
@@ -231,6 +237,7 @@ def comment(id=None, cid=None):
 
 @app.route('/api/tweet', methods=['POST'])
 @app.route('/api/tweet/<id>', methods=['PUT', 'DELETE'])
+@cross_origin()
 def tweet(id=None, cid=None):
 
     if request.method == 'POST' and 'file' in request.files and not allowed_file(request.files['file'].filename):

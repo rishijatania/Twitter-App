@@ -26,10 +26,10 @@ profileRequest = {'profileRequest': []}
 
 
 def checkifObjectExist():
-    if rj.jsonget('user', Path.rootPath()) == None:
+    if rj.jsonget('user', Path.rootPath()) == None or rj.jsonget('user', Path('.profileRequest')) == None:
         rj.jsonset('user', Path.rootPath(), profileRequest)
 
-    if rj.jsonget('tweet', Path.rootPath()) == None:
+    if rj.jsonget('tweet', Path.rootPath()) == None or rj.jsonget('tweet', Path('.tweetRequest')) == None:
         rj.jsonset('tweet', Path.rootPath(), tweetRequest)
 
 
