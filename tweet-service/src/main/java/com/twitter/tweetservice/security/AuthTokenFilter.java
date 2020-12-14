@@ -34,7 +34,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 		try {
 			logger.info("inside token filter");
 			logger.info(" Request URL " + request.getRequestURI());
-			if (request.getRequestURI() !=null && request.getRequestURI().contains("/actuator")|| request.getRequestURI().contains("/metrics")) {
+			if (request.getRequestURI().contains("/actuator") || request.getRequestURI().contains("/metrics") || request.getRequestURI().contains("/prometheus") || request.getRequestURI().contains("/health") | request.getRequestURI().contains("/info")) {
 				logger.info("inside if for actuator");
 				filterChain.doFilter(request, response);
 			}

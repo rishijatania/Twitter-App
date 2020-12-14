@@ -64,6 +64,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		http.csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
 				.antMatchers("/api/auth/**").permitAll().antMatchers("/actuator/**").permitAll().antMatchers("/metrics**").permitAll()
+				.antMatchers("/health**").permitAll().antMatchers("/info**").permitAll().antMatchers("/prometheus**").permitAll()
 				.antMatchers("/api/test/**").permitAll().anyRequest().authenticated();
 
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -73,5 +74,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	public void configure(WebSecurity web) throws Exception {
 		web.ignoring().antMatchers("/actuator/**");
 		web.ignoring().antMatchers("/metrics**");
+		web.ignoring().antMatchers("/health**");
+		web.ignoring().antMatchers("/info**");
+		web.ignoring().antMatchers("/prometheus**");
 	}
 }

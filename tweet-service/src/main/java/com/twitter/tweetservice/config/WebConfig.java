@@ -40,5 +40,8 @@ public class WebConfig extends WebSecurityConfigurerAdapter{
 	public void configure(WebSecurity web) throws Exception {
 		web.ignoring().antMatchers("/actuator/**");
 		web.ignoring().antMatchers("/metrics**");
+		web.ignoring().antMatchers("/health**");
+		web.ignoring().antMatchers("/info**");
+		web.ignoring().antMatchers("/prometheus**");
 	}
 }
