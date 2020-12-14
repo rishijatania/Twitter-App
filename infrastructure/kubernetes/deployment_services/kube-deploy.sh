@@ -13,4 +13,8 @@ kubectl apply -f twitter-middleware-config.yml &&
 kubectl apply -f twitter-middleware-deployment.yml &&
 kubectl apply -f service-twitter-middleware-lb.yml &&
 kubectl apply -f twitter-frontend-deployment.yml &&
-kubectl apply -f service-twitter-frontend-lb.yml
+kubectl apply -f service-twitter-frontend-lb.yml &&
+
+sleep 4
+kubectl get pods &&
+kubectl get svc &&

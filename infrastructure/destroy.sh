@@ -5,6 +5,11 @@ echo "Destroy Script"
 cd ./kubernetes/deployment_services
 . ./kube-destroy.sh
 
+#Kube Destroy monitoring and services
+cd ..
+cd ./monitoring_services
+. ./monitor-destroy.sh
+
 # Terraform
 cd ../../terraform
 echo "Terrafrom destroy"

@@ -25,7 +25,7 @@ echo "export KUBECONFIG=${KUBECONFIG}" >>${HOME}/.bash_profile &&
 sleep 7 &&
 kubectl apply -f ../kubernetes/config_map_aws_auth.yaml
 cd ..
-
+pwd
 echo "Please enter following details for a successful deployment"
 #Load credentials
 echo "Loading credentials and Applying deployment/services"
@@ -33,4 +33,11 @@ cd ./kubernetes/deployment_services &&
 . ./credentials.sh &&
 
 #Kube Apply deployment and services
-. ./kube-deploy.sh
+. ./kube-deploy.sh &&
+cd ..
+
+pwd
+echo "Applying monitoring services"
+#Kube Apply monitoring
+cd ./monitoring_services &&
+. ./monitor-deploy.sh
