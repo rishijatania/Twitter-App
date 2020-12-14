@@ -5,7 +5,7 @@ metadata:
   labels:
     app: twitter-backend
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: twitter-backend
@@ -31,3 +31,10 @@ spec:
                 name: twitter-backend-secret
           ports:
             - containerPort: 8080
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "40m"
+            limits:
+              memory: "512Mi"
+              cpu: "40m"
