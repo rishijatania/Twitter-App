@@ -1,4 +1,5 @@
 #!/bin/bash
+kubectl delete hpa twitter-backend &&
 kubectl delete -f twitter-backend-secrets.yml &&
 kubectl delete -f twitter-backend-config.yml &&
 kubectl delete -f twitter-backend-deployment.yml &&
