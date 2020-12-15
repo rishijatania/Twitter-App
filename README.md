@@ -61,25 +61,38 @@ In-order to setup continuous integration in github using github actions please c
 
 ## Initial set up
 Keep you Docker up and running
-Clone the project, and step into the infrastructure and run the command
+Clone the project, and open the Terminal(Linux/Mac) or Git bash(Windows) into the infrastructure directory of the project and run the command
 ```sh
 ./deployment.sh
 ```
-The scripts deploys the infrastructure using terraform scripts and ask for key credentials neededto deploy the application. Once secrets have been entered the script execution continues and deploys K8 cluster services. 
+The scripts deploys the infrastructure using terraform scripts and ask for the details required to populate the secrets in the following order:
+1. Name of the 4 secret files you would like to use. (Press enter for the first 4 prompts)
+2. MongoDB Cluster URI
+3. MongoDB Name
+4. Slack Webhook URI
+5. JWT Secret (Can be any random string)
+6. Rapid API Key
+7. AWS Access Key
+8. AWS Secret Access Key
+9. S3 Bucket Name
 
-Once the cluster is created check the cluster health with 
+Once secrets have been generated the script execution continues and deploys K8 cluster services. 
+
+Once the cluster is created check the services with:
 
 ```sh
 kubectl get svc
 ```
-To Open Grafana Dashboard using the following command and follow the url with the port mentioned.
+To Access the Front-end use the link for the LoadBalancer of twitter-front end.
 
+
+To Open Grafana Dashboard use the following command and follow the url with the port mentioned.
 ```sh
 kubectl get svc -n monitoring
 ```
 ## Delete Cluster:
 
-To delete the cluster run the delete destroy.sh script
+To delete the cluster run the destroy.sh script found in the infrastructure directory.
 
 ```sh
 ./destroy.sh
