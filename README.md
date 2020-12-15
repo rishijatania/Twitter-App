@@ -52,7 +52,11 @@ The project is deployed on Kubernetes cluster and has the following components:
 ## Dependancies
 
 We need [Terraform](https://www.terraform.io/downloads.html), [Docker](https://docs.docker.com/get-docker/) for running the deployment.
-We need [S3 Bucket](https://aws.amazon.com/s3/) for hosting images, [Slack WebHooks](https://api.slack.com/messaging/webhooks) and [RapidAPI](https://rapidapi.com) credentials
+We need [S3 Bucket Name](https://aws.amazon.com/s3/) for hosting images, [Slack WebHooks](https://api.slack.com/messaging/webhooks), [RapidAPI](https://rapidapi.com) credentials, RAPID API KEY for [Purgomalum](https://rapidapi.com/community/api/PurgoMalum/details), DockerHub Username and Password and AWS Account Access Key and Secret of the Account that will run the EKS stack and also has the S3 Bucket.
+We also need the [MongoDB Atlas Cluster URL](https://www.mongodb.com/cloud).
+
+## continuous Integration Setup
+In-order to setup continuous integration in github using github actions please configure your Docker Username(DOCKER_USER) and Password(DOCKER_PASSWORD) by following these [steps](https://secrethub.io/docs/guides/github-actions/#pass-credenitals-to-github-action)
 
 
 ## Initial set up
