@@ -17,6 +17,29 @@ Deployment scripts recreate this scalable microservices application and deploy i
 
 The deployment scripts would create 2 worker nodes within AWS EKS cluster automated using Terraform scripts. All routing is managed internally by Service Names, so no IP's needs to be edited.
 
+## Features
+
+Application Features – Twitter
+
+1. Token based authentication for user Sign in and Sign up
+2. Web application where user can tweet and see the recent tweet from other users who they follow.
+3. Tweets include photo, username, tweet body, comments and likes on a particular post.
+4. User can comment and like the tweet and view tweets posted by others
+5. Ability to delete offensive tweets before any user can see them
+6. All the tweets are store to the backend database, which will help the user find their past tweets.
+7. Ability to deploy front-end as a PWA so that it can run on devices
+8. Redis queue for caching requests.
+9. React and material UI for frontend development
+
+Application Deployment
+
+1. Terraform to provision infrastructure
+2. Kubernetes cluster on AWS
+3. Monitoring using Prometheus
+4. Continuous Integration to Docker Hub (A new image is created and deployed to docker hub) using Github Actions
+5. Deploy app on cloud with a single command (automation)
+6. Grafana Dashboard for visualization
+
 ## Infrastructure:
 
 The project is deployed on Kubernetes cluster and has the following components:
@@ -67,7 +90,7 @@ In-order to setup continuous integration in github using github actions please c
 
 ## Initial set up
 
-Keep you Docker up and running
+These steps with screenshots can be found in the [Project Deployment Steps](Project Deployment Steps.docx) word document.
 Clone the project, and open the Terminal(Linux/Mac) or Git bash(Windows) into the infrastructure directory of the project and run the command
 
 ```sh
@@ -76,15 +99,14 @@ Clone the project, and open the Terminal(Linux/Mac) or Git bash(Windows) into th
 
 The scripts deploys the infrastructure using terraform scripts and ask for the details required to populate the secrets in the following order:
 
-1. Name of the 4 secret files you would like to use. (Press enter for the first 4 prompts)
-2. MongoDB Cluster URI
-3. MongoDB Name
-4. Slack Webhook URI
-5. JWT Secret (Can be any random string)
-6. Rapid API Key
-7. AWS Access Key
-8. AWS Secret Access Key
-9. S3 Bucket Name
+1. MongoDB Cluster URI
+2. MongoDB Name
+3. Slack Webhook URI
+4. JWT Secret (Can be any random string)
+5. Rapid API Key
+6. AWS Access Key
+7. AWS Secret Access Key
+8. S3 Bucket Name
 
 Once secrets have been generated the script execution continues and deploys K8 cluster services.
 
@@ -109,6 +131,15 @@ To delete the cluster run the destroy.sh script found in the infrastructure dire
 ```sh
 ./destroy.sh
 ```
+
+## PWA Installation steps:
+
+You will find a '+' symbol to right of the URL. Cick on it and install the app on to your device.
+If you don’t find a '+' to the right of the URL bar after going in to the deployed website then follow these steps.
+
+1. Open Chrome browser and type the following in the url (chrome://flags/#unsafely-treat-insecure-origin-as-secure)
+2. Enable the "Insecure origins treated as secure" by adding the deployed application's URL in the input field.
+3. Now reload browser and you will see '+' symbol to right of the URL. Cick on it and install the app on to your device.
 
 Docker Images:
 
