@@ -17,14 +17,14 @@ tweet_con_f="twitter-tweet-config.yml"
 
 echo "Enter MongoDB Atlas Cluster Details"
 read -p 'Connection URI: ' mongoUri
-mongoUri=$(printf "%s" "$mongoUri" | base64)
+mongoUri=$(printf "%s" "$mongoUri" | base64 -w 0)
 
 if [[ $backend_sec_f != "" && $mongoUri != "" ]]; then
 	# Mac command specifics
 	if [[ "$OSTYPE" == "darwin"* ]]; then
 		sed -i '.bak' "s/{{ MongoDB.Cluster.URI }}/$mongoUri/g" $backend_sec_f
 	else # Linux 
-		sed -i "s/{{ MongoDB.Cluster.URI }}/$mongoUri/g" $backend_Sec_F
+		sed -i "s/{{ MongoDB.Cluster.URI }}/$mongoUri/g" $backend_sec_f
 	fi
 else
 	exit 1
@@ -56,7 +56,7 @@ fi
 
 echo "Enter Slack Webhook Details"
 read -p 'Webhook URI: ' slackUri
-slackUri=$(printf "%s" "$slackUri" | base64)
+slackUri=$(printf "%s" "$slackUri" | base64 -w 0)
 
 if [[ $backend_sec_f != "" && $slackUri != "" && $middleware_sec_f != "" ]]; then
 	# Mac command specifics
