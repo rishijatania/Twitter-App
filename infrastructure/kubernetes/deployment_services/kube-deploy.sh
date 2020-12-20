@@ -13,10 +13,10 @@ kubectl apply -f twitter-middleware-config.yml &&
 kubectl apply -f twitter-middleware-deployment.yml &&
 kubectl apply -f service-twitter-middleware-lb.yml &&
 kubectl apply -f twitter-frontend-deployment.yml &&
-kubectl apply -f service-twitter-frontend-lb.yml &&
+kubectl apply -f service-twitter-frontend-lb.yml 
 # kubectl apply -f metrics-server.yml &&
 # kubectl autoscale deployment twitter-backend --cpu-percent=40 --min=1 --max=5 &&
 
 sleep 4
 kubectl get pods &&
-kubectl get svc &&
+kubectl get svc

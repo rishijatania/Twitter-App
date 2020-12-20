@@ -1,15 +1,19 @@
 #!/bin/bash
-read -p "Enter backend secrets filename [twitter-backend-secrets.yml]" backend_sec_f
-backend_sec_f=${backend_sec_f:-twitter-backend-secrets.yml}
+# read -p "Enter backend secrets filename [twitter-backend-secrets.yml]" backend_sec_f
+# backend_sec_f=${backend_sec_f:-twitter-backend-secrets.yml}
+backend_sec_f="twitter-backend-secrets.yml"
 
-read -p "Enter middleware secrets filename [twitter-middleware-secrets.yml]" middleware_sec_f
-middleware_sec_f=${middleware_sec_f:-twitter-middleware-secrets.yml}
+# read -p "Enter middleware secrets filename [twitter-middleware-secrets.yml]" middleware_sec_f
+# middleware_sec_f=${middleware_sec_f:-twitter-middleware-secrets.yml}
+middleware_sec_f="twitter-middleware-secrets.yml"
 
-read -p "Enter backend configmap filename [twitter-backend-config.yml]" backend_con_f
-backend_con_f=${backend_con_f:-twitter-backend-config.yml}
+# read -p "Enter backend configmap filename [twitter-backend-config.yml]" backend_con_f
+# backend_con_f=${backend_con_f:-twitter-backend-config.yml}
+backend_con_f="twitter-backend-config.yml"
 
-read -p "Enter tweet service configmap filename [twitter-tweet-config.yml]" tweet_con_f
-tweet_con_f=${tweet_con_f:-twitter-tweet-config.yml}
+# read -p "Enter tweet service configmap filename [twitter-tweet-config.yml]" tweet_con_f
+# tweet_con_f=${tweet_con_f:-twitter-tweet-config.yml}
+tweet_con_f="twitter-tweet-config.yml"
 
 echo "Enter MongoDB Atlas Cluster Details"
 read -p 'Connection URI: ' mongoUri

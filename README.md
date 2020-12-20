@@ -90,6 +90,14 @@ To Open Grafana Dashboard use the following command and follow the url with the 
 ```sh
 kubectl get svc -n monitoring
 ```
+## PWA Installation steps:
+You will find a '+' symbol to right of the URL on Chrome Browser. Cick on it and install the app on to your device. 
+If you don’t find a '+' to the right of the URL bar after going in to the deployed website then follow these steps.
+
+1. Open Chrome browser and type the following in the url (chrome://flags/#unsafely-treat-insecure-origin-as-secure)
+2. Enable the "Insecure origins treated as secure" by adding the deployed application's URL in the input field.
+3. Now reload browser and you will see '+' symbol to right of the URL. Cick on it and install the app on to your device.
+
 ## Delete Cluster:
 
 To delete the cluster run the destroy.sh script found in the infrastructure directory.
