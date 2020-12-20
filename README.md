@@ -90,7 +90,7 @@ In-order to setup continuous integration in github using github actions please c
 
 ## Initial set up
 
-These steps with screenshots can be found in the [Project Deployment Steps](Project Deployment Steps.docx) word document.
+These steps with screenshots can be found in the [Project Deployment Steps](Project Deployment Steps.pdf) word document.
 Clone the project, and open the Terminal(Linux/Mac) or Git bash(Windows) into the infrastructure directory of the project and run the command
 
 ```sh
