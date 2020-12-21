@@ -84,13 +84,16 @@ We need [Terraform](https://www.terraform.io/downloads.html), [Docker](https://d
 We need [S3 Bucket Name](https://aws.amazon.com/s3/) for hosting images, [Slack WebHooks](https://api.slack.com/messaging/webhooks), [RapidAPI](https://rapidapi.com) credentials, RAPID API KEY for [Purgomalum](https://rapidapi.com/community/api/PurgoMalum/details), DockerHub Username and Password and AWS Account Access Key and Secret of the Account that will run the EKS stack and also has the S3 Bucket.
 We also need the [MongoDB Atlas Cluster URL](https://www.mongodb.com/cloud).
 
-## continuous Integration Setup
+## Continuous Integration Setup
 
 In-order to setup continuous integration in github using github actions please configure your Docker Username(DOCKER_USER) and Password(DOCKER_PASSWORD) by following these [steps](https://secrethub.io/docs/guides/github-actions/#pass-credenitals-to-github-action)
 
 ## Initial set up
 
-These steps with screenshots can be found in the [Project Deployment Steps](https://github.com/rishijatania/Twitter-App/blob/main/Project%20Deployment%20Steps.pdf) PDF.
+The initial steps with screenshots can be found in the [Project Deployment Steps](https://github.com/rishijatania/Twitter-App/blob/main/Project%20Deployment%20Steps.pdf) PDF.
+
+OR
+
 Clone the project, and open the Terminal(Linux/Mac) or Git bash(Windows) into the infrastructure directory of the project and run the command
 
 ```sh
@@ -124,14 +127,6 @@ To Open Grafana Dashboard use the following command and follow the url with the 
 kubectl get svc -n monitoring
 ```
 
-## Delete Cluster:
-
-To delete the cluster run the destroy.sh script found in the infrastructure directory.
-
-```sh
-./destroy.sh
-```
-
 ## PWA Installation steps:
 
 You will find a '+' symbol to right of the URL. Cick on it and install the app on to your device.
@@ -141,7 +136,15 @@ If you don’t find a '+' to the right of the URL bar after going in to the depl
 2. Enable the "Insecure origins treated as secure" by adding the deployed application's URL in the input field.
 3. Now reload browser and you will see '+' symbol to right of the URL. Cick on it and install the app on to your device.
 
-Docker Images:
+## Delete Cluster:
+
+To delete the cluster run the destroy.sh script found in the infrastructure directory.
+
+```sh
+./destroy.sh
+```
+
+## Docker Images:
 
 - rishijatania/twitter-backend
 - rishijatania/twitter-frontend
